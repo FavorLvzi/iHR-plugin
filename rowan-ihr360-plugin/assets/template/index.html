@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <script src="https://plugin.ihr360.com/system/ihr360-base-framework.js"></script>
+  <!-- ihr360-html-page-builder: {"schema":"1","title":"业务页面","generatedAt":"2026-06-02T16:00:00+08:00"} -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>业务页面</title>
+  <style>
+    :root {
+      --primary-50:  #e8f8f6;
+      --primary-400: #50cabc;
+      --primary-500: #15B8A6;
+      --primary-700: #0d9488;
+      --neutral-100: #f5f6f7;
+      --neutral-200: #eff0f2;
+      --neutral-500: #8e929b;
+      --neutral-600: #616670;
+      --neutral-800: #262626;
+      --bg-page:     #f9fafb;
+      --bg-card:     #ffffff;
+      --radius-control: 4px;
+      --radius-card:    8px;
+      --card-shadow: 1px 1px 4px 4px rgba(83,84,85,0.02);
+      --space-16: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg-page);
+      color: var(--neutral-600);
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ---- Layout ---- */
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--space-16);
+    }
+
+    /* ---- Card ---- */
+    .card {
+      padding: var(--space-16);
+      border-radius: var(--radius-card);
+      background: var(--bg-card);
+      box-shadow: var(--card-shadow);
+      margin-bottom: var(--space-16);
+    }
+
+    /* ---- Header ---- */
+    .page-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-16);
+      flex-wrap: wrap;
+    }
+
+    .page-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--neutral-800);
+    }
+
+    .helper-text {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--neutral-500);
+    }
+
+    /* ---- Buttons ---- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 14px;
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-control);
+      background: #fff;
+      color: var(--neutral-600);
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: var(--neutral-100); }
+    .btn-primary {
+      border-color: var(--primary-500);
+      background: var(--primary-500);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--primary-700); }
+
+    /* ---- Filters ---- */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: var(--space-16);
+    }
+
+    .input {
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-control);
+      background: #fff;
+      color: var(--neutral-600);
+      font-size: 14px;
+      min-width: 180px;
+    }
+    .input:focus { outline: none; border-color: var(--primary-500); }
+
+    /* ---- Metrics ---- */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--space-16);
+      margin-bottom: var(--space-16);
+    }
+
+    .metric {
+      padding: 14px var(--space-16);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-card);
+      background: #fff;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--neutral-500);
+    }
+
+    .metric-value {
+      margin-top: 6px;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--neutral-800);
+    }
+
+    /* ---- Table ---- */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .data-table th {
+      padding: 10px 12px;
+      background: var(--neutral-100);
+      color: var(--neutral-600);
+      font-weight: 500;
+      text-align: left;
+      white-space: nowrap;
+      border-bottom: 1px solid var(--neutral-200);
+    }
+
+    .data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--neutral-200);
+      color: var(--neutral-600);
+    }
+
+    .data-table tbody tr:hover td {
+      background: var(--neutral-100);
+    }
+
+    /* ---- Pagination ---- */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: var(--space-16);
+    }
+
+    .page-btn {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-control);
+      background: #fff;
+      color: var(--neutral-600);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .page-btn.active {
+      border-color: var(--primary-500);
+      background: var(--primary-500);
+      color: #fff;
+    }
+
+    .page-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .page-info {
+      font-size: 13px;
+      color: var(--neutral-500);
+      margin: 0 8px;
+    }
+
+    /* ---- Empty ---- */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 48px 0;
+      color: var(--neutral-500);
+      font-size: 14px;
+    }
+
+    /* ---- Loading ---- */
+    .loading-overlay {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 40px 0;
+    }
+
+    .loading-overlay.show { display: flex; }
+
+    .loading-gif {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #e5e7eb;
+      border-top-color: #15B8A6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .progress-wrap {
+      width: 260px;
+      height: 6px;
+      background: var(--neutral-200);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary-500);
+      transition: width 0.3s;
+    }
+
+    .loading-text {
+      font-size: 13px;
+      color: var(--neutral-500);
+    }
+
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 24px;
+      border-radius: var(--radius-control);
+      background: var(--neutral-800);
+      color: #fff;
+      font-size: 14px;
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 768px) {
+      .page-head { flex-direction: column; }
+      .filters { flex-direction: column; }
+      .metrics { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ====== Header Card ====== -->
+  <div class="card">
+    <div class="page-head">
+      <div>
+        <div class="page-title">页面标题</div>
+        <div class="helper-text">页面说明或副标题</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" id="btnQuery">查询</button>
+        <button class="btn" id="btnExport">导出 CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== Filter Card ====== -->
+  <div class="card">
+    <div class="filters">
+      <input class="input" type="text" id="filterName" placeholder="姓名搜索" />
+      <input class="input" type="text" id="filterDept" placeholder="部门搜索" />
+    </div>
+  </div>
+
+  <!-- ====== Metrics Card ====== -->
+  <div class="card" id="metricsCard" style="display:none;">
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">结果总数</div>
+        <div class="metric-value" id="metricCount">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== Loading ====== -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-gif"></div>
+    <div class="progress-wrap">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="loading-text" id="loadingText">准备中...</div>
+  </div>
+
+  <!-- ====== Results Card ====== -->
+  <div class="card" id="resultsCard" style="display:none;">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>姓名</th>
+            <th>部门</th>
+            <th>入职日期</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display:none;">
+      暂无数据
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ Tools ============
+function getCookie(name) {
+  var match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+  return match ? decodeURIComponent(match[2]) : "";
+}
+
+// ============ API ============
+function api(method, url, body) {
+  return fetch(url, {
+    method: method,
+    headers: {
+      "Content-Type": "application/json",
+      "IHR-Request-Origin": "frontend_skill_page",
+      "x-xsrf-token": getCookie("XSRF-TOKEN"),
+    },
+    credentials: "include",
+    body: body ? JSON.stringify(body) : undefined,
+  });
+}
+
+// ============ Toast ============
+var toastTimer;
+function showToast(msg, duration) {
+  duration = duration || 2000;
+  var el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { el.classList.remove("show"); }, duration);
+}
+
+// ============ Loading ============
+function showLoading() {
+  document.getElementById("loadingOverlay").classList.add("show");
+  document.getElementById("resultsCard").style.display = "none";
+  document.getElementById("metricsCard").style.display = "none";
+}
+
+function hideLoading() {
+  document.getElementById("loadingOverlay").classList.remove("show");
+}
+
+function updateProgress(current, total) {
+  document.getElementById("progressFill").style.width = (total > 0 ? (current / total * 100) : 0) + "%";
+  document.getElementById("loadingText").textContent = "正在加载... " + current + "/" + total + " 页";
+}
+
+// ============ Pagination ============
+var allData = [];
+var pageSize = 30;
+var currentPage = 1;
+
+function renderPagination(total) {
+  var totalPages = Math.ceil(total / pageSize);
+  var el = document.getElementById("pagination");
+  if (totalPages <= 1) { el.innerHTML = ""; return; }
+
+  var html = '<button class="page-btn" ' + (currentPage <= 1 ? "disabled" : "") + ' onclick="goPage(' + (currentPage - 1) + ')">&laquo;</button>';
+
+  for (var i = 1; i <= Math.min(totalPages, 7); i++) {
+    html += '<button class="page-btn' + (i === currentPage ? " active" : "") + '" onclick="goPage(' + i + ')">' + i + "</button>";
+  }
+
+  html += '<button class="page-btn" ' + (currentPage >= totalPages ? "disabled" : "") + ' onclick="goPage(' + (currentPage + 1) + ')">&raquo;</button>';
+  html += '<span class="page-info">共 ' + total + ' 条 / ' + totalPages + ' 页</span>';
+
+  el.innerHTML = html;
+}
+
+// NOTE: Use addEventListener pattern, not onclick in production
+// The onclick in pagination is acceptable since it's dynamically generated
+function goPage(p) {
+  currentPage = p;
+  renderTable();
+}
+
+function renderTable() {
+  var start = (currentPage - 1) * pageSize;
+  var pageData = allData.slice(start, start + pageSize);
+  var tbody = document.getElementById("tableBody");
+
+  if (pageData.length === 0) {
+    tbody.innerHTML = "";
+    document.getElementById("emptyState").style.display = "flex";
+    document.getElementById("pagination").innerHTML = "";
+    return;
+  }
+
+  document.getElementById("emptyState").style.display = "none";
+
+  var html = "";
+  for (var i = 0; i < pageData.length; i++) {
+    var row = pageData[i];
+    html += "<tr>" +
+      "<td>" + (start + i + 1) + "</td>" +
+      "<td>" + (row.staffName || "") + "</td>" +
+      "<td>" + (row.departmentName || "") + "</td>" +
+      "<td>" + (row.enrollInDate || "") + "</td>" +
+      "</tr>";
+  }
+  tbody.innerHTML = html;
+  renderPagination(allData.length);
+  window.scrollTo({ top: document.getElementById("resultsCard").offsetTop - 20, behavior: "smooth" });
+}
+
+// ============ Query ============
+async function queryAllPages(url, body) {
+  var all = [], page = 1, hasMore = true, ps = 100;
+
+  while (hasMore) {
+    var res = await api("POST", url, Object.assign({}, body, { page: page, pageSize: ps }));
+    var data = await res.json();
+
+    if (!data || !data.data) {
+      showToast("查询失败：" + (data && data.message || "未知错误"));
+      return [];
+    }
+
+    var list = data.data.list || [];
+    all = all.concat(list);
+    updateProgress(page, data.data.totalPages || page);
+
+    if (page >= (data.data.totalPages || 0)) hasMore = false;
+    else page++;
+  }
+
+  return all;
+}
+
+// ============ Filter ============
+function getFilteredData() {
+  var nameFilter = (document.getElementById("filterName").value || "").trim().toLowerCase();
+  var deptFilter = (document.getElementById("filterDept").value || "").trim().toLowerCase();
+
+  if (!nameFilter && !deptFilter) return allData;
+
+  return allData.filter(function(row) {
+    var matchName = !nameFilter || (row.staffName || "").toLowerCase().indexOf(nameFilter) >= 0;
+    var matchDept = !deptFilter || (row.departmentName || "").toLowerCase().indexOf(deptFilter) >= 0;
+    return matchName && matchDept;
+  });
+}
+
+// ============ Export ============
+function exportCSV() {
+  var data = getFilteredData();
+  if (data.length === 0) { showToast("没有数据可导出"); return; }
+
+  var BOM = "\uFEFF";
+  var headers = ["序号", "姓名", "部门", "入职日期"];
+  var lines = [BOM + headers.join(",")];
+
+  for (var i = 0; i < data.length; i++) {
+    var row = data[i];
+    lines.push([
+      i + 1,
+      '"' + (row.staffName || "") + '"',
+      '"' + (row.departmentName || "") + '"',
+      row.enrollInDate || "",
+    ].join(","));
+  }
+
+  var blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "数据导出_" + new Date().toISOString().slice(0, 10) + ".csv";
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("导出完成");
+}
+
+// ============ Main ============
+document.getElementById("btnQuery").addEventListener("click", async function() {
+  showLoading();
+  updateProgress(0, 1);
+
+  // TODO: Replace with real API endpoint and query params
+  // Example:
+  // allData = await queryAllPages("/web/gateway/roster/aggregate/v1/staffs/search", {
+  //   query: { staffStatus: "IN_SERVICE" }
+  // });
+
+  // Placeholder: simulate with empty result
+  allData = [];
+  updateProgress(1, 1);
+
+  hideLoading();
+  document.getElementById("resultsCard").style.display = "block";
+  document.getElementById("metricsCard").style.display = "block";
+  document.getElementById("metricCount").textContent = allData.length;
+
+  currentPage = 1;
+  var filtered = getFilteredData();
+  document.getElementById("metricCount").textContent = filtered.length;
+  renderTable();
+  showToast("查询完成，共 " + filtered.length + " 条");
+});
+
+document.getElementById("btnExport").addEventListener("click", function() {
+  exportCSV();
+});
+
+// Filter input events
+document.getElementById("filterName").addEventListener("input", function() {
+  currentPage = 1;
+  var filtered = getFilteredData();
+  document.getElementById("metricCount").textContent = filtered.length;
+  renderTable();
+});
+
+document.getElementById("filterDept").addEventListener("input", function() {
+  currentPage = 1;
+  var filtered = getFilteredData();
+  document.getElementById("metricCount").textContent = filtered.length;
+  renderTable();
+});
+</script>
+
+</body>
+</html>

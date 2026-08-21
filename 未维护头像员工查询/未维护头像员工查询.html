@@ -1,0 +1,724 @@
+<!-- ihr360-html-page-builder: {"schema":"1","title":"未维护头像员工查询","generatedAt":"2026-06-24T14:00:00+08:00"} -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <script src="https://plugin.ihr360.com/system/ihr360-base-framework.js" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>未维护头像员工查询 - i人事插件</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary-500: #15B8A6; --primary-600: #0F766E; --primary-50: #e8f8f6;
+      --neutral-100: #f5f6f7; --neutral-200: #eff0f2; --neutral-500: #8e929b;
+      --neutral-600: #616670; --neutral-800: #262626;
+      --bg-page: #f9fafb; --bg-card: #ffffff;
+      --card-shadow: 1px 1px 4px 4px rgba(83,84,85,0.02);
+      --radius-card: 8px; --radius-control: 4px;
+      --red-500: #ef4444; --amber-500: #f59e0b; --green-500: #10b981;
+      --zebra-even: #fafbfc;
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      font-size: 14px; color: var(--neutral-600); background: var(--bg-page);
+    }
+    body { padding: 16px; line-height: 1.5; }
+    .content-stack { display: grid; gap: 12px; max-width: 1400px; margin: 0 auto; }
+
+    .card {
+      padding: 14px 16px; border-radius: var(--radius-card);
+      background: var(--bg-card); box-shadow: var(--card-shadow);
+    }
+
+    .page-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .page-title { margin: 0; color: var(--neutral-800); font-size: 16px; font-weight: 600; line-height: 24px; }
+    .helper-text { margin: 2px 0 0; color: var(--neutral-500); font-size: 12px; line-height: 18px; }
+
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+    .status-dot.live { background: var(--green-500); }
+    .status-dot.empty { background: var(--neutral-500); }
+
+    .button {
+      display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px;
+      border: 1px solid var(--neutral-200); border-radius: var(--radius-control);
+      background: #fff; color: var(--neutral-600); cursor: pointer;
+      font-size: 13px; font-family: inherit;
+    }
+    .button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .button-primary { border-color: var(--primary-500); background: var(--primary-500); color: #fff; }
+
+    /* 统计 */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px;
+    }
+    .stat {
+      padding: 10px 14px; border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-card); background: #fff;
+    }
+    .stat-label { color: var(--neutral-500); font-size: 11px; line-height: 16px; }
+    .stat-value { margin-top: 2px; font-size: 20px; font-weight: 600; color: var(--neutral-800); line-height: 24px; }
+
+    /* 规则提示 */
+    .rule-bar {
+      padding: 8px 12px; border-radius: var(--radius-control);
+      font-size: 12px; line-height: 1.6; margin-bottom: 10px;
+      background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa;
+    }
+
+    /* 工具栏 */
+    .filter-bar {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid var(--neutral-200); margin-bottom: 8px;
+    }
+    .filter-bar input[type="text"] {
+      height: 28px; border: 1px solid var(--neutral-200); border-radius: var(--radius-control);
+      padding: 0 8px; font-size: 13px; color: var(--neutral-600); outline: none;
+      background: #fff; font-family: inherit; width: 160px;
+    }
+    .filter-bar input[type="text"]:focus { border-color: var(--primary-500); }
+    .filter-count { font-size: 12px; color: var(--neutral-500); margin-left: auto; }
+
+    /* 表格 */
+    .table-wrap { overflow: auto; max-height: calc(100vh - 280px); }
+    .page-size{display:flex;align-items:center;gap:4px;margin-left:12px;font-size:12px;color:var(--neutral-500)}
+    .page-size select{height:26px;border:1px solid var(--neutral-200);border-radius:var(--radius-control);padding:0 4px;font-size:12px;color:var(--neutral-600);outline:0;background:#fff;cursor:pointer}
+    th .resizer{position:absolute;right:0;top:0;bottom:0;width:5px;cursor:col-resize;z-index:2}
+    th .resizer:hover{background:var(--primary-500);opacity:.5}
+    .settings-wrap{position:relative;display:inline-block}
+    .settings-btn{width:28px;height:28px;border:1px solid var(--neutral-200);border-radius:var(--radius-control);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;color:var(--neutral-600);line-height:1;vertical-align:middle}
+    .settings-btn:hover{border-color:var(--primary-500);color:var(--primary-500)}
+    .settings-pop{display:none;position:absolute;right:0;top:34px;background:#fff;border:1px solid var(--neutral-200);border-radius:var(--radius-card);box-shadow:0 4px 16px rgba(0,0,0,.12);padding:10px 14px;min-width:190px;z-index:20;font-size:13px}
+    .settings-pop.show{display:block}
+    .settings-pop label{display:flex;align-items:center;gap:7px;padding:5px 0;cursor:pointer;color:var(--neutral-600)}
+    .settings-pop label input[type=checkbox]{margin:0;width:15px;height:15px;cursor:pointer}
+    .settings-pop .sttl{font-size:11px;color:var(--neutral-500);border-bottom:1px solid var(--neutral-200);padding-bottom:6px;margin-bottom:2px}
+    th{position:relative}
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--neutral-200); white-space: nowrap; }
+    th {
+      background: var(--neutral-100); color: var(--neutral-600); font-weight: 500; font-size: 12px;
+      position: sticky; top: 0; z-index: 1;
+    }
+    tbody tr:nth-child(even) td { background: var(--zebra-even); }
+    tbody tr:hover td { background: #eefaf8 !important; }
+
+    .empty-state {
+      padding: 40px; text-align: center; color: var(--neutral-500);
+      font-size: 13px; border: 1px dashed var(--neutral-200);
+      border-radius: var(--radius-card); background: var(--bg-page);
+    }
+
+    /* 分页 */
+    .pager {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px 0 0; font-size: 13px;
+    }
+    .pager button {
+      height: 28px; padding: 0 10px; border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-control); background: #fff; color: var(--neutral-600);
+      cursor: pointer; font-size: 13px; font-family: inherit;
+    }
+    .pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pager button.active {
+      border-color: var(--primary-500); background: var(--primary-50);
+      color: var(--primary-600); font-weight: 500;
+    }
+    .pager .page-info { color: var(--neutral-500); margin: 0 4px; }
+
+    /* 加载动画 */
+    .loading-box { text-align: center; padding: 28px 20px; }
+    .loading-character {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 100px; height: 100px; margin: 0 auto; position: relative;
+    }
+    .loading-character .spinner {
+      width: 60px; height: 60px;
+      border: 4px solid #e5e7eb;
+      border-top-color: #15B8A6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-title {
+      font-size: 15px; color: var(--neutral-800); margin: 14px 0 18px;
+      font-weight: 500; transition: color 0.3s;
+    }
+    .progress-track {
+      width: 100%; max-width: 380px; height: 8px;
+      background: #e5e7eb; border-radius: 4px;
+      margin: 0 auto; overflow: hidden; position: relative;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 4px; width: 0%;
+      background: linear-gradient(90deg, #15B8A6, #34d399, #6ee7b7);
+      background-size: 200% 100%;
+      transition: width 0.4s ease;
+    }
+    .progress-fill.active {
+      animation: shimmer 1.6s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: 0% 0; }
+    }
+    .progress-fill.indeterminate {
+      width: 30% !important;
+      animation: slideBar 1.2s ease-in-out infinite;
+      background: linear-gradient(90deg, #15B8A6, #34d399);
+      background-size: 200% 100%;
+    }
+    @keyframes slideBar {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(430%); }
+    }
+    .loading-status { font-size: 13px; color: var(--primary-600); margin-top: 14px; font-weight: 500; min-height: 20px; }
+    .loading-detail { font-size: 12px; color: var(--neutral-500); margin-top: 4px; min-height: 18px; }
+    .loading-tip { font-size: 11px; color: var(--neutral-500); margin-top: 12px; opacity: 0.65; line-height: 1.6; }
+
+    .no-avatar-highlight { color: var(--red-500); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="content-stack">
+
+    <!-- 页头 -->
+    <section class="card">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">未维护头像员工查询</h1>
+          <p class="helper-text">查询花名册中在职员工未上传头像的情况，支持搜索过滤和CSV导出</p>
+        </div>
+        <div class="toolbar">
+          <span style="font-size:12px;color:var(--neutral-500);" id="sourceLabel">
+            <span class="status-dot empty"></span>等待查询
+          </span>
+          <button class="button button-primary" id="queryBtn" type="button">
+            查询真实数据
+          </button>
+          <button class="button" id="exportBtn" type="button" disabled>
+            导出CSV
+          </button>
+        </div>
+      </div>
+      <div class="rule-bar">
+        <strong>判断规则：</strong> 取花名册在职员工，检查 <code>staffImageId</code> 字段是否为空 | 数据来源：花名册聚合查询 API
+      </div>
+    </section>
+
+    <!-- 统计卡片 -->
+    <section class="stats-row" id="statsRow" style="display:none;">
+      <div class="stat">
+        <div class="stat-label">未维护头像人数</div>
+        <div class="stat-value no-avatar-highlight" id="statNoAvatar">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">在职总人数</div>
+        <div class="stat-value" id="statTotal">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">头像覆盖率</div>
+        <div class="stat-value" id="statCoverage" style="font-size:16px;">-</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">查询时间</div>
+        <div class="stat-value" id="statTime" style="font-size:14px;">-</div>
+      </div>
+    </section>
+
+    <!-- 加载动画 -->
+    <section class="card" id="loadingCard" style="display:none;">
+      <div class="loading-box">
+        <div class="loading-character"><div class="spinner"></div></div>
+        <div class="loading-title" id="loadingTitle">正在连接服务器...</div>
+        <div class="progress-track">
+          <div class="progress-fill active" id="progressFill"></div>
+        </div>
+        <div class="loading-status" id="loadingStatus">准备中...</div>
+        <div class="loading-detail" id="loadingDetail"></div>
+        <div class="loading-tip">数据量大时请耐心等待~</div>
+      </div>
+    </section>
+
+    <!-- 错误提示 -->
+    <section class="card" id="errorCard" style="display:none;">
+      <div style="color:var(--red-500);font-size:13px;text-align:center;padding:10px;" id="errorMsg"></div>
+    </section>
+
+    <!-- 数据表 -->
+    <section class="card" id="dataCard">
+      <div class="filter-bar" id="filterBar" style="display:none;">
+        <input type="text" id="searchInput" placeholder="搜索姓名...">
+        <input type="text" id="deptInput" placeholder="搜索部门...">
+        <span class="filter-count" id="filterCount"></span>
+        <span class="settings-wrap">
+          <button class="settings-btn" id="settingsBtn" title="列设置">⚙</button>
+          <div class="settings-pop" id="settingsPop"></div>
+        </span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead id="theadInner">
+            <tr>
+              <th>员工姓名</th>
+              <th>手机号</th>
+              <th>部门</th>
+              <th>入职日期</th>
+            </tr>
+          </thead>
+          <tbody id="mainBody">
+            <tr><td colspan="4" class="empty-state">点击上方「查询真实数据」开始查询</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager" id="pager" style="display:none;">
+        <span class="page-size">每页<select id="pageSizeSelect"><option value="25">25</option><option value="50">50</option><option value="100">100</option><option value="200">200</option></select>条</span>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // ==============================
+    //  请求封装（与司龄计算器一致）
+    // ==============================
+    var DEFAULT_HEADERS = {
+      "x-requested-with": "XMLHttpRequest",
+      "IHR-Request-Origin": "frontend_skill_page",
+    };
+
+    function generateRId() {
+      return Date.now().toString(36) + Math.random().toString(36).substring(2, 11);
+    }
+
+    function getCookie(name) {
+      var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? decodeURIComponent(match[2]) : null;
+    }
+
+    function request(url, options) {
+      options = options || {};
+      var headers = options.headers || {};
+      var credentials = options.credentials || "include";
+      var restOptions = {};
+      for (var k in options) {
+        if (k !== 'headers' && k !== 'credentials') restOptions[k] = options[k];
+      }
+      var separator = url.indexOf("?") !== -1 ? "&" : "?";
+      var urlWithRId = url + separator + "r_id=" + generateRId();
+      var xsrfToken = getCookie("XSRF-TOKEN") || getCookie("xsrf-token");
+
+      return fetch(urlWithRId, {
+        credentials: credentials,
+        headers: Object.assign({}, DEFAULT_HEADERS,
+          xsrfToken ? { "x-xsrf-token": xsrfToken } : {},
+          headers),
+        method: restOptions.method,
+        body: restOptions.body,
+      });
+    }
+
+    // ==============================
+    //  工具函数
+    // ==============================
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function fmtDateStr(raw) {
+      if (!raw) return '-';
+      if (typeof raw === 'number') {
+        var d = new Date(raw);
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      }
+      if (typeof raw === 'string' && raw.indexOf('-') !== -1) {
+        var p = raw.split('-');
+        if (p.length >= 3) return raw.substring(0, 10);
+      }
+      return raw;
+    }
+
+    // ==============================
+    //  数据 & 分页状态
+    // ==============================
+    var allResults = [];        // 所有无头像员工
+    var filteredResults = [];
+    var pageSize = parseInt(localStorage.getItem('avatarPageSize')) || 25;
+    document.getElementById('pageSizeSelect').value = pageSize;
+    document.getElementById('pageSizeSelect').addEventListener('change', function() {
+      pageSize = parseInt(this.value);
+      try { localStorage.setItem('avatarPageSize', pageSize); } catch(e) {}
+      currentPage = 1;
+      renderPage();
+    });
+    var currentPage = 1;
+    var totalStaffCount = 0;   // 在职总数
+
+    // ==============================
+    //  加载动画 & 进度
+    // ==============================
+    function setLoadingState(visible) {
+      document.getElementById('loadingCard').style.display = visible ? 'block' : 'none';
+    }
+
+    function updateLoadingUI(page, totalPages, label, dataCount) {
+      var pct = totalPages > 0 ? Math.round(page / totalPages * 100) : 0;
+      var fill = document.getElementById('progressFill');
+      if (totalPages > 0) {
+        fill.style.width = pct + '%';
+        fill.classList.remove('indeterminate');
+      } else {
+        fill.classList.add('indeterminate');
+      }
+      var statusText = totalPages > 0
+        ? label + ' 第 ' + page + '/' + totalPages + ' 页'
+        : label + ' 获取中...';
+      document.getElementById('loadingStatus').textContent = statusText;
+      document.getElementById('loadingDetail').textContent = dataCount > 0 ? '已扫描 ' + dataCount + ' 条记录' : '';
+      var titleText;
+      if (totalPages === 0) {
+        titleText = '正在连接服务器...';
+      } else if (pct < 25) {
+        titleText = '小喵正在努力拉取数据...';
+      } else if (pct < 50) {
+        titleText = '数据有点多，请耐心等待~';
+      } else if (pct < 80) {
+        titleText = '快了快了，小喵加油中...';
+      } else {
+        titleText = '马上就好，正在整理数据...';
+      }
+      document.getElementById('loadingTitle').textContent = titleText;
+    }
+
+    // ==============================
+    //  查询主逻辑
+    // ==============================
+    var isLoading = false;
+
+    document.getElementById('queryBtn').addEventListener('click', function() {
+      if (isLoading) return;
+      isLoading = true;
+      var btn = document.getElementById('queryBtn');
+      btn.disabled = true;
+      btn.textContent = '查询中...';
+
+      // 重置状态
+      allResults = [];
+      filteredResults = [];
+      totalStaffCount = 0;
+      document.getElementById('statsRow').style.display = 'none';
+      document.getElementById('errorCard').style.display = 'none';
+      document.getElementById('filterBar').style.display = 'none';
+      document.getElementById('exportBtn').disabled = true;
+      document.getElementById('mainBody').innerHTML = '<tr><td colspan="4" class="empty-state">查询中...</td></tr>';
+      document.getElementById('pager').style.display = 'none';
+      document.getElementById('sourceLabel').innerHTML = '<span class="status-dot empty"></span>查询中...';
+
+      // 加载动画
+      setLoadingState(true);
+      var fillEl = document.getElementById('progressFill');
+      fillEl.style.width = '0%';
+      fillEl.classList.add('indeterminate');
+      updateLoadingUI(0, 0, '在职员工', 0);
+
+      doQuery().then(function() {
+        applyFilter();
+        setLoadingState(false);
+        document.getElementById('sourceLabel').innerHTML =
+          '<span class="status-dot live"></span>真实数据（' + allResults.length + ' 人无头像）';
+      }).catch(function(err) {
+        setLoadingState(false);
+        document.getElementById('errorCard').style.display = 'block';
+        document.getElementById('errorMsg').textContent = '查询失败: ' + err.message;
+        document.getElementById('mainBody').innerHTML = '<tr><td colspan="4" class="empty-state">查询出错，请重试</td></tr>';
+      }).finally(function() {
+        isLoading = false;
+        btn.disabled = false;
+        btn.textContent = '查询真实数据';
+      });
+    });
+
+    async function doQuery() {
+      var page = 1;
+      var pageSizeVal = 100;
+      var hasMore = true;
+
+      while (hasMore) {
+        updateLoadingUI(page, 0, '在职员工', totalStaffCount);
+
+        var response = await request("/web/gateway/roster/aggregate/v1/staffs/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fields: ["staffName", "mobileNo", "staffImageId", "departmentName", "enrollInDate", "staffStatus"],
+            page: page,
+            pageSize: String(pageSizeVal),
+            flexSearchItems: [
+              { fieldType: "EQUAL", searchKey: "staffStatus", searchParam: "IN_SERVICE" }
+            ],
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
+
+        var result = await response.json();
+
+        if (result.code !== 0) {
+          throw new Error(result.message || "code=" + result.code);
+        }
+
+        var staffList = result.data.list || [];
+        totalStaffCount = result.data.totalElements || 0;
+        var totalPages = result.data.totalPages || 0;
+
+        // 筛选无头像员工
+        for (var i = 0; i < staffList.length; i++) {
+          if (!staffList[i].staffImageId) {
+            allResults.push(staffList[i]);
+          }
+        }
+
+        updateLoadingUI(page, totalPages, '在职员工', totalStaffCount);
+
+        if (page >= totalPages) {
+          hasMore = false;
+        } else {
+          page++;
+        }
+      }
+
+      // 更新统计
+      document.getElementById('statNoAvatar').textContent = allResults.length;
+      document.getElementById('statTotal').textContent = totalStaffCount;
+      var coverage = totalStaffCount > 0
+        ? ((totalStaffCount - allResults.length) / totalStaffCount * 100).toFixed(1) + '%'
+        : '-';
+      document.getElementById('statCoverage').textContent = coverage;
+      document.getElementById('statTime').textContent = new Date().toLocaleString('zh-CN', { hour12: false });
+      document.getElementById('statsRow').style.display = 'grid';
+      document.getElementById('filterBar').style.display = 'flex';
+      document.getElementById('exportBtn').disabled = allResults.length === 0;
+    }
+
+    // ==============================
+    //  搜索过滤
+    // ==============================
+    function applyFilter() {
+      var search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+      var dept = (document.getElementById('deptInput').value || '').toLowerCase().trim();
+
+      filteredResults = allResults.filter(function(staff) {
+        if (search && (staff.staffName || '').toLowerCase().indexOf(search) === -1) return false;
+        if (dept && (staff.departmentName || '').toLowerCase().indexOf(dept) === -1) return false;
+        return true;
+      });
+
+      currentPage = 1;
+      renderPage();
+      rebuildHeader();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function() {
+      currentPage = 1;
+      applyFilter();
+    });
+    document.getElementById('deptInput').addEventListener('input', function() {
+      currentPage = 1;
+      applyFilter();
+    });
+
+    // ==============================
+    //  分页渲染
+    // ==============================
+    function renderPage() {
+      var totalPages = Math.ceil(filteredResults.length / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      var start = (currentPage - 1) * pageSize;
+      var pageRows = filteredResults.slice(start, start + pageSize);
+      var startNum = filteredResults.length === 0 ? 0 : start + 1;
+      var endNum = Math.min(start + pageSize, filteredResults.length);
+
+      document.getElementById('filterCount').textContent =
+        '共 ' + filteredResults.length + ' 条（显示 ' + startNum + '-' + endNum + '）';
+
+      var html = '';
+      for (var i = 0; i < pageRows.length; i++) {
+        var s = pageRows[i];
+        html += '<tr>';
+        COLUMNS_DEF.forEach(function(c){
+          if(!isColVis(c.key))return;
+          if(c.key==='staffName')html+='<td>'+escapeHtml(s.staffName||'-')+'</td>';
+          else if(c.key==='mobileNo')html+='<td>'+escapeHtml(s.mobileNo||'-')+'</td>';
+          else if(c.key==='departmentName')html+='<td>'+escapeHtml(s.departmentName||'-')+'</td>';
+          else if(c.key==='enrollInDate')html+='<td>'+fmtDateStr(s.enrollInDate)+'</td>';
+        });
+        html+='</tr>';
+      }
+
+      if (filteredResults.length === 0) {
+        html = '<tr><td colspan="4" class="empty-state">' +
+          (allResults.length > 0 ? '无匹配数据，请调整搜索条件' : '所有员工均已维护头像') +
+          '</td></tr>';
+      }
+
+      document.getElementById('mainBody').innerHTML = html;
+      renderPager(totalPages);
+      initColResize();
+      buildSettingsPop();
+    }
+
+    function renderPager(totalPages) {
+      if (totalPages <= 1) {
+        document.getElementById('pager').style.display = 'none';
+        return;
+      }
+      document.getElementById('pager').style.display = 'flex';
+
+      var html = '';
+      html += '<button ' + (currentPage <= 1 ? 'disabled' : '') + ' id="prevBtn">上一页</button>';
+
+      var showPages = [];
+      for (var p = 1; p <= totalPages; p++) {
+        if (p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2) {
+          showPages.push(p);
+        } else if (showPages.length > 0 && showPages[showPages.length - 1] !== '...') {
+          showPages.push('...');
+        }
+      }
+
+      for (var i = 0; i < showPages.length; i++) {
+        var page = showPages[i];
+        if (page === '...') {
+          html += '<span class="page-info">...</span>';
+        } else {
+          html += '<button class="' + (page === currentPage ? 'active' : '') + '" data-page="' + page + '">' + page + '</button>';
+        }
+      }
+
+      html += '<button ' + (currentPage >= totalPages ? 'disabled' : '') + ' id="nextBtn">下一页</button>';
+      html += '<span class="page-info">共 ' + totalPages + ' 页</span>';
+
+      document.getElementById('pager').innerHTML = html;
+
+      document.getElementById('prevBtn').addEventListener('click', function() {
+        if (currentPage > 1) { currentPage--; renderPage(); }
+      });
+      document.getElementById('nextBtn').addEventListener('click', function() {
+        if (currentPage < totalPages) { currentPage++; renderPage(); }
+      });
+      var pageBtns = document.getElementById('pager').querySelectorAll('[data-page]');
+      for (var j = 0; j < pageBtns.length; j++) {
+        pageBtns[j].addEventListener('click', function() {
+          currentPage = +this.getAttribute('data-page');
+          renderPage();
+        });
+      }
+    }
+
+    // ==============================
+    //  CSV 导出
+    // ==============================
+    document.getElementById('exportBtn').addEventListener('click', function() {
+      if (allResults.length === 0) return;
+
+      var headers = ['序号', '员工姓名', '手机号', '部门', '入职日期'];
+      var rows = allResults.map(function(staff, index) {
+        return [
+          index + 1,
+          staff.staffName || '',
+          staff.mobileNo || '',
+          staff.departmentName || '',
+          fmtDateStr(staff.enrollInDate),
+        ];
+      });
+
+      var csvContent = [
+        headers.join(','),
+      ].concat(rows.map(function(row) {
+        return row.map(function(cell) {
+          return '"' + String(cell).replace(/"/g, '""') + '"';
+        }).join(',');
+      })).join('\n');
+
+      var blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = '未维护头像员工_' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    /* ---- 小齿轮设置弹窗 ---- */
+    var COLUMNS_DEF = [
+      {key:'staffName', label:'员工姓名', defShow:1},
+      {key:'mobileNo', label:'手机号', defShow:1},
+      {key:'departmentName', label:'部门', defShow:1},
+      {key:'enrollInDate', label:'入职日期', defShow:1},
+    ];
+    function loadColVis(){
+      var s;try{s=JSON.parse(localStorage.getItem('avatarColVis'))}catch(e){}
+      window.colVis=s||{};
+      COLUMNS_DEF.forEach(function(c){if(window.colVis[c.key]===undefined)window.colVis[c.key]=c.defShow});
+    }
+    function saveColVis(){
+      try{localStorage.setItem('avatarColVis',JSON.stringify(window.colVis))}catch(e){}
+      renderPage();
+    }
+    function isColVis(k){return window.colVis[k]!==0}
+    loadColVis();
+    function buildSettingsPop(){
+      var h='<div class="sttl">显示列</div>';
+      COLUMNS_DEF.forEach(function(c){
+        var ch=isColVis(c.key)?'checked':'';
+        h+='<label><input type="checkbox" data-col="'+c.key+'" '+ch+'>'+c.label+'</label>';
+      });
+      document.getElementById('settingsPop').innerHTML=h;
+      document.querySelectorAll('#settingsPop input[type=checkbox]').forEach(function(cb){
+        cb.addEventListener('change',function(){
+          window.colVis[this.getAttribute('data-col')]=this.checked?1:0;
+          saveColVis();
+        });
+      });
+    }
+    /* 齿轮点击 */
+    document.getElementById('settingsBtn').addEventListener('click',function(e){
+      e.stopPropagation();document.getElementById('settingsPop').classList.toggle('show');
+    });
+    document.addEventListener('click',function(){document.getElementById('settingsPop').classList.remove('show')});
+    document.getElementById('settingsPop').addEventListener('click',function(e){e.stopPropagation()});
+
+    /* ---- 表头拖拽 ---- */
+    function initColResize(){
+      document.querySelectorAll('#theadInner th').forEach(function(th){
+        if(th.querySelector('.resizer'))return;
+        var div=document.createElement('div');div.className='resizer';th.appendChild(div);
+        var sx=0,sw=0,rz=0;
+        div.addEventListener('mousedown',function(e){
+          e.preventDefault();rz=1;sx=e.clientX;sw=th.offsetWidth;
+          document.body.style.cursor='col-resize';document.body.style.userSelect='none';
+          document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
+        });
+        function onMove(e){if(!rz)return;var w=Math.max(40,sw+(e.clientX-sx));th.style.width=w+'px';th.style.maxWidth=w+'px';var ci=Array.from(th.parentNode.children).indexOf(th);document.querySelectorAll('#mainBody tr').forEach(function(tr){var td=tr.children[ci];if(td){td.style.width=w+'px';td.style.maxWidth=w+'px'}});}
+        function onUp(){rz=0;document.body.style.cursor='';document.body.style.userSelect='';document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);}
+      });
+    }
+
+    /* ---- 重建表头 ---- */
+    function rebuildHeader(){
+      var h='<tr>';
+      COLUMNS_DEF.forEach(function(c){if(isColVis(c.key))h+='<th>'+c.label+'</th>'});
+      h+='</tr>';
+      document.getElementById('theadInner').innerHTML=h;
+    }
+  </script>
+</body>
+</html>

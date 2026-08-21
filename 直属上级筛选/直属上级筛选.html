@@ -1,0 +1,1203 @@
+<!-- ihr360-html-page-builder: {"schema":"1","title":"直属上级筛选","generatedAt":"2026-06-24T14:00:00+08:00"} -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <script src="https://plugin.ihr360.com/system/ihr360-base-framework.js" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>直属上级筛选 - i人事插件</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary-500: #15B8A6; --primary-600: #0F766E; --primary-50: #e8f8f6;
+      --neutral-100: #f5f6f7; --neutral-200: #eff0f2; --neutral-500: #8e929b;
+      --neutral-600: #616670; --neutral-800: #262626;
+      --bg-page: #f9fafb; --bg-card: #ffffff;
+      --card-shadow: 1px 1px 4px 4px rgba(83,84,85,0.02);
+      --radius-card: 8px; --radius-control: 4px;
+      --red-500: #ef4444; --amber-500: #f59e0b; --green-500: #10b981; --blue-500: #3b82f6;
+      --zebra-even: #fafbfc;
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      font-size: 14px; color: var(--neutral-600); background: var(--bg-page);
+    }
+    body { padding: 16px; line-height: 1.5; }
+    .content-stack { display: grid; gap: 12px; max-width: 1400px; margin: 0 auto; }
+
+    .card {
+      padding: 14px 16px; border-radius: var(--radius-card);
+      background: var(--bg-card); box-shadow: var(--card-shadow);
+    }
+
+    .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .page-title { margin: 0; color: var(--neutral-800); font-size: 16px; font-weight: 600; line-height: 24px; }
+    .helper-text { margin: 2px 0 0; color: var(--neutral-500); font-size: 12px; line-height: 18px; }
+
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+    .status-dot.live { background: var(--green-500); }
+    .status-dot.empty { background: var(--neutral-500); }
+    .status-dot.error { background: var(--red-500); }
+
+    .button {
+      display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px;
+      border: 1px solid var(--neutral-200); border-radius: var(--radius-control);
+      background: #fff; color: var(--neutral-600); cursor: pointer;
+      font-size: 13px; font-family: inherit;
+    }
+    .button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .button-primary { border-color: var(--primary-500); background: var(--primary-500); color: #fff; }
+
+    /* 统计卡片 */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+    .stat { padding: 10px 14px; border: 1px solid var(--neutral-200); border-radius: var(--radius-card); background: #fff; }
+    .stat-label { color: var(--neutral-500); font-size: 11px; line-height: 16px; }
+    .stat-value { margin-top: 2px; font-size: 20px; font-weight: 600; color: var(--neutral-800); line-height: 24px; }
+    .stat-card-superiors .stat-value { color: var(--blue-500); }
+    .stat-card-no-sup .stat-value { color: var(--amber-500); }
+
+    /* 规则提示 */
+    .rule-bar {
+      padding: 8px 12px; border-radius: var(--radius-control);
+      font-size: 12px; line-height: 1.6; margin-bottom: 10px;
+      background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;
+    }
+    .rule-bar code { background: #e5e7eb; padding: 1px 4px; border-radius: 3px; font-size: 11px; }
+    .rule-bar .warn { color: var(--amber-500); font-weight: 600; }
+    .rule-bar .info-icon { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: var(--primary-500); color: #fff; text-align: center; line-height: 14px; font-size: 10px; margin-right: 3px; font-weight: 700; }
+
+    /* 筛选栏 */
+    .filter-bar {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid var(--neutral-200); margin-bottom: 8px;
+    }
+    .filter-bar input[type="text"] {
+      height: 28px; border: 1px solid var(--neutral-200); border-radius: var(--radius-control);
+      padding: 0 8px; font-size: 13px; color: var(--neutral-600); outline: none;
+      background: #fff; font-family: inherit; width: 150px;
+    }
+    .filter-bar input[type="text"]:focus { border-color: var(--primary-500); }
+    .filter-bar select {
+      height: 28px; border: 1px solid var(--neutral-200); border-radius: var(--radius-control);
+      padding: 0 6px; font-size: 13px; color: var(--neutral-600); outline: none;
+      background: #fff; font-family: inherit; cursor: pointer; max-width: 200px;
+    }
+    .filter-bar select:focus { border-color: var(--primary-500); }
+    .filter-count { font-size: 12px; color: var(--neutral-500); margin-left: auto; white-space: nowrap; }
+
+    /* 表格 */
+    .table-wrap { overflow: auto; max-height: calc(100vh - 280px); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--neutral-200); white-space: nowrap; }
+    th {
+      background: var(--neutral-100); color: var(--neutral-600); font-weight: 500; font-size: 12px;
+      position: sticky; top: 0; z-index: 1; position: relative;
+    }
+    tbody tr:nth-child(even) td { background: var(--zebra-even); }
+    tbody tr:hover td { background: #eefaf8 !important; }
+
+    .badge {
+      display: inline-block; padding: 1px 8px; border-radius: 10px;
+      font-size: 11px; font-weight: 500; line-height: 18px;
+    }
+    .badge-sup { background: #dbeafe; color: #1d4ed8; }
+    .badge-no-sup { background: #fef3c7; color: #92400e; }
+    .badge-regular { background: #d1fae5; color: #065f46; }
+    .badge-probation { background: #fef3c7; color: #92400e; }
+    .badge-dept { background: #f3f4f6; color: #4b5563; }
+
+    .empty-state {
+      padding: 40px; text-align: center; color: var(--neutral-500);
+      font-size: 13px; border: 1px dashed var(--neutral-200);
+      border-radius: var(--radius-card); background: var(--bg-page);
+    }
+
+    /* 分页 */
+    .pager {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px 0 0; font-size: 13px;
+    }
+    .pager button {
+      height: 28px; padding: 0 10px; border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-control); background: #fff; color: var(--neutral-600);
+      cursor: pointer; font-size: 13px; font-family: inherit;
+    }
+    .pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pager button.active {
+      border-color: var(--primary-500); background: var(--primary-50);
+      color: var(--primary-600); font-weight: 500;
+    }
+    .pager .page-info { color: var(--neutral-500); margin: 0 4px; }
+
+    /* 加载动画 */
+    .loading-box { text-align: center; padding: 28px 20px; }
+    .loading-character {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 100px; height: 100px; margin: 0 auto; position: relative;
+    }
+    .loading-character .spinner {
+      width: 60px; height: 60px;
+      border: 4px solid #e5e7eb;
+      border-top-color: #15B8A6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-title {
+      font-size: 15px; color: var(--neutral-800); margin: 14px 0 18px;
+      font-weight: 500; transition: color 0.3s;
+    }
+    .progress-track {
+      width: 100%; max-width: 380px; height: 8px;
+      background: #e5e7eb; border-radius: 4px;
+      margin: 0 auto; overflow: hidden; position: relative;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 4px; width: 0%;
+      background: linear-gradient(90deg, #15B8A6, #34d399, #6ee7b7);
+      background-size: 200% 100%;
+      transition: width 0.4s ease;
+    }
+    .progress-fill.active { animation: shimmer 1.6s ease-in-out infinite; }
+    .progress-fill.indeterminate {
+      width: 30% !important;
+      animation: slideBar 1.2s ease-in-out infinite;
+      background: linear-gradient(90deg, #15B8A6, #34d399);
+      background-size: 200% 100%;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: 0% 0; }
+    }
+    @keyframes slideBar {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(430%); }
+    }
+    .loading-status { font-size: 13px; color: var(--primary-600); margin-top: 14px; font-weight: 500; min-height: 20px; }
+    .loading-detail { font-size: 12px; color: var(--neutral-500); margin-top: 4px; min-height: 18px; }
+    .loading-tip { font-size: 11px; color: var(--neutral-500); margin-top: 12px; opacity: 0.65; line-height: 1.6; }
+
+    /* 后端状态提示 */
+    .backend-notice {
+      padding: 8px 12px; border-radius: var(--radius-control);
+      font-size: 12px; line-height: 1.6;
+      background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa;
+      display: none;
+    }
+    .backend-notice.show { display: block; }
+
+    /* 字段配置面板 */
+    .col-config-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 9999; background: rgba(0,0,0,.45);
+      display: flex; justify-content: center; align-items: flex-start;
+      padding-top: 40px; overflow-y: auto;
+    }
+    .col-config-panel {
+      background: #fff; border-radius: var(--radius-card);
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+      max-width: 700px; width: 92%; max-height: 80vh;
+      display: flex; flex-direction: column;
+    }
+    .col-config-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; border-bottom: 1px solid var(--neutral-200);
+    }
+    .col-config-header h3 { font-size: 15px; color: var(--neutral-800); margin: 0; }
+    .modal-close {
+      width: 30px; height: 30px; border: none; background: none;
+      cursor: pointer; color: var(--neutral-500); font-size: 20px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { background: var(--neutral-100); }
+    .col-config-body {
+      padding: 12px 18px; overflow-y: auto; flex: 1;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr));
+      gap: 6px;
+    }
+    .col-config-body label {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 8px; border-radius: 4px; cursor: pointer;
+      font-size: 13px; color: var(--neutral-600);
+    }
+    .col-config-body label:hover { background: var(--neutral-100); }
+    .col-config-body input[type="checkbox"] { accent-color: var(--primary-500); }
+    .col-config-footer {
+      display: flex; gap: 8px; padding: 10px 18px;
+      border-top: 1px solid var(--neutral-200); justify-content: flex-end;
+    }
+    .col-config-stats { font-size: 11px; color: var(--neutral-500); margin-left: auto; }
+
+    /* 隐藏列 */
+    .col-hide { display: none; }
+
+    /* 上级高亮 */
+    .superior-name { color: var(--blue-500); font-weight: 500; }
+    .no-superior { color: var(--neutral-500); font-style: italic; }
+
+.page-size{display:flex;align-items:center;gap:4px;margin-left:12px;font-size:12px;color:var(--neutral-500)}
+.page-size select{height:26px;border:1px solid var(--neutral-200);border-radius:var(--radius-control);padding:0 4px;font-size:12px;color:var(--neutral-600);outline:0;background:#fff;cursor:pointer}
+th .resizer{position:absolute;right:0;top:0;bottom:0;width:5px;cursor:col-resize;z-index:2}
+th .resizer:hover{background:var(--primary-500);opacity:.5}
+  </style>
+</head>
+<body>
+  <div class="content-stack">
+
+    <!-- ============== 页头 ============== -->
+    <section class="card">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">直属上级筛选</h1>
+          <p class="helper-text">按员工的直属领导进行查询筛选 — 数据来源：花名册 + OpenAPI</p>
+        </div>
+        <div class="toolbar">
+          <span style="font-size:12px;color:var(--neutral-500);" id="sourceLabel">
+            <span class="status-dot empty"></span>等待查询
+          </span>
+          <button class="button button-primary" id="queryBtn" type="button">查询数据</button>
+          <button class="button" id="colConfigBtn" type="button" style="display:none;">⚙️ 字段配置</button>
+        </div>
+      </div>
+      <div class="rule-bar">
+        <span class="info-icon">i</span>
+        <strong>使用说明：</strong>查询后可从「直属上级」下拉框选择领导，查看其下属员工。
+        上级信息通过 FaaS 后端代理（OpenAPI）获取，已自动配置。
+      </div>
+    </section>
+
+    <!-- ============== 统计卡片 ============== -->
+    <section class="stats-row" id="statsRow" style="display:none;">
+      <div class="stat">
+        <div class="stat-label">总员工数</div>
+        <div class="stat-value" id="statTotal">0</div>
+      </div>
+      <div class="stat stat-card-superiors">
+        <div class="stat-label">直属上级人数</div>
+        <div class="stat-value" id="statSuperiors">0</div>
+      </div>
+      <div class="stat stat-card-no-sup">
+        <div class="stat-label">无上级信息</div>
+        <div class="stat-value" id="statNoSuperior">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">查询时间</div>
+        <div class="stat-value" id="statTime" style="font-size:14px;">-</div>
+      </div>
+    </section>
+
+    <!-- ============== 加载动画 ============== -->
+    <section class="card" id="loadingCard" style="display:none;">
+      <div class="loading-box">
+        <div class="loading-character"><div class="spinner"></div></div>
+        <div class="loading-title" id="loadingTitle">正在连接服务器...</div>
+        <div class="progress-track">
+          <div class="progress-fill active" id="progressFill"></div>
+        </div>
+        <div class="loading-status" id="loadingStatus">准备中...</div>
+        <div class="loading-detail" id="loadingDetail"></div>
+        <div class="loading-tip">数据量大时请耐心等待~</div>
+      </div>
+    </section>
+
+    <!-- ============== 错误提示 ============== -->
+    <section class="card" id="errorCard" style="display:none;">
+      <div style="color:var(--red-500);font-size:13px;text-align:center;padding:10px;" id="errorMsg"></div>
+    </section>
+
+      <!-- ============== Token 状态提示 ============== -->
+    <section class="card" id="backendNoticeCard" style="display:none;">
+      <div class="backend-notice show" id="backendNotice">
+        <strong>⚠ 上级数据获取失败：</strong>
+        请检查 IHR_TOKEN_V1 Cookie 是否有效，或联系管理员确认 OpenAPI CORS 策略。
+      </div>
+    </section>
+
+    <!-- ============== 字段配置面板 ============== -->
+    <div class="col-config-overlay" id="colConfigOverlay" style="display:none;">
+      <div class="col-config-panel">
+        <div class="col-config-header">
+          <h3>字段配置</h3>
+          <button class="modal-close" id="colConfigClose" type="button">✕</button>
+        </div>
+        <div class="col-config-body" id="colConfigBody">
+          <!-- 由 JS 动态生成 -->
+        </div>
+        <div class="col-config-footer">
+          <button class="button" id="colConfigSelectAll" type="button">全选</button>
+          <button class="button" id="colConfigDeselectAll" type="button">全不选</button>
+          <button class="button button-primary" id="colConfigApply" type="button">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============== 数据表 ============== -->
+    <section class="card" id="dataCard">
+      <div class="filter-bar" id="filterBar" style="display:none;">
+        <select id="reportTypeFilter">
+          <option value="">汇报类型</option>
+        </select>
+        <select id="superiorFilter">
+          <option value="">全部直属上级</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="搜索姓名...">
+        <input type="text" id="deptInput" placeholder="搜索部门...">
+        <span class="filter-count" id="filterCount"></span>
+          <span class="settings-wrap" style="position:relative;display:inline-block">
+            <button class="settings-btn" style="width:28px;height:28px;border:1px solid var(--neutral-200);border-radius:var(--radius-control);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;color:var(--neutral-600);line-height:1;vertical-align:middle;cursor:pointer" id="settingsBtn" title="列设置">⚙</button>
+            <div class="settings-pop" id="settingsPop" style="display:none;position:absolute;right:0;top:34px;background:#fff;border:1px solid var(--neutral-200);border-radius:var(--radius-card);box-shadow:0 4px 16px rgba(0,0,0,.12);padding:10px 14px;min-width:190px;z-index:20;font-size:13px"></div>
+          </span>
+      </div>
+      <div class="table-wrap">
+        <table id="mainTable">
+          <thead id="mainHead"></thead>
+          <tbody id="mainBody">
+            <tr><td colspan="61" class="empty-state">点击上方「查询数据」加载员工信息及上级关系</td></tr>
+          <tbody id="mainBody">
+            <tr><td colspan="61" class="empty-state">点击上方「查询数据」加载员工信息及上级关系</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager" id="pager" style="display:none;">
+        <span class="page-size" style="display:flex;align-items:center;gap:4px;margin-left:12px;font-size:12px;color:var(--neutral-500)">每页<select id="pageSizeSelect" style="height:26px;border:1px solid var(--neutral-200);border-radius:var(--radius-control);padding:0 4px;font-size:12px;color:var(--neutral-600);outline:0;background:#fff;cursor:pointer"><option value="25">25</option><option value="50">50</option><option value="100">100</option><option value="200">200</option></select>条</span>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // ==============================
+    //  常量：FaaS 后端配置
+    // ==============================
+    var FAAS_URL = 'https://faasapi.ihr360.com/public/api/function/execute/v1/1118754546307444736/version/latest';
+    var FAAS_KEY = 'ifg8bpK0VWhXnhNiWS8n6ZbVBzgvydBe1TjRxMfb';
+    var STAFF_TYPE_MAP = {
+      "FULLTIME": "全职", "PARTTIME": "兼职", "INTERSHIP": "实习",
+      "EXPATRIATE": "外派", "TEMPORARY": "临时工", "REHIRE_RETIREMENT": "退休返聘"
+    };
+    var SEX_MAP = { "MALE": "男", "FEMALE": "女" };
+    var PROB_STATUS_MAP = { "PASSED": "已转正", "ONPROBATION": "试用期" };
+    var STAFF_ORIGIN_MAP = {
+      "IMPORT_ADD": "导入新增", "IMPORT_UPDATE": "导入更新", "NEWLY_ADDED": "花名新增",
+      "APP_ENROLL": "手机入职", "RESUME_ENROLL": "简历入职", "OPENAPI_ENROLL": "openapi入职"
+    };
+    var CONTRACT_TYPE_MAP = {
+      "LABOR_CONTRACT": "劳动合同", "SERVICE_CONTRACT": "劳务合同",
+      "TRAINING_CONTRACT": "实习合同", "NO_LIMIT_CONTRACT": "无固定期限",
+      "OTHER_CONTRACT": "其他合同"
+    };
+    var YN_MAP = { true: "是", false: "否" };
+
+    // ==============================
+    //  列配置
+    // ==============================
+    var STORAGE_KEY = 'superiorFilterCols';
+    var COLUMNS = [
+      { key:'staffName', label:'姓名', field:'staffName', always:true },
+      { key:'sex', label:'性别', field:'sexLabel' },
+      { key:'staffNo', label:'工号', field:'staffNo' },
+      { key:'idCardType', label:'证件类型', field:'idCardType' },
+      { key:'idCardNo', label:'证件号', field:'idCardNoShort', render:function(st){ return (''+st.idCardNo).substring(0,18)||'-'; } },
+      { key:'mobileNo', label:'手机号', field:'mobileNo' },
+      { key:'email', label:'邮箱', field:function(st){ return st.email||st.workEmail||'-'; } },
+      { key:'departmentName', label:'部门', field:'departmentName' },
+      { key:'fullDepartmentName', label:'部门全路径', field:'fullDepartmentName' },
+      { key:'positionName', label:'岗位', field:'positionName' },
+      { key:'positionLevelName', label:'职级', field:'positionLevelName' },
+      { key:'jobTitleName', label:'职务', field:'jobTitleName' },
+      { key:'staffType', label:'员工类型', field:'staffTypeLabel' },
+      { key:'staffStatus', label:'员工状态', field:'staffStatus' },
+      { key:'probationStatus', label:'试用状态', field:null,
+        render:function(st){ return st.probationStatus==='PASSED'?'<span class="badge badge-regular">已转正</span>':st.probationStatus==='ONPROBATION'?'<span class="badge badge-probation">试用期</span>':escapeHtml(st.probationStatusLabel||'-'); }
+      },
+      { key:'probationLength', label:'试用月数', field:'probationLength' },
+      { key:'enrollInDate', label:'入职日期', field:'enrollInDate' },
+      { key:'positiveDate', label:'转正日期', field:'positiveDate' },
+      { key:'corporationName', label:'合同公司', field:'corporationName' },
+      { key:'contractType', label:'合同类型', field:'contractTypeLabel' },
+      { key:'contractBeginDate', label:'合同起', field:'contractBeginDate' },
+      { key:'contractEndDate', label:'合同止', field:'contractEndDate' },
+      { key:'companySiteName', label:'工作地点', field:'companySiteName' },
+      { key:'enrollWorkYears', label:'司龄(年)', field:null,
+        render:function(st){ var v=st.enrollWorkYears; return (v!=null && v!==undefined) ? Number(v).toFixed(2) : '-'; }
+      },
+      { key:'startWorkingDate', label:'首次工作日期', field:'startWorkingDate' },
+      { key:'initialWorkYears', label:'历史工龄', field:null,
+        render:function(st){ var v=st.initialWorkYears; return (v!=null && v!==undefined) ? Number(v).toFixed(2) : '-'; }
+      },
+      { key:'totalWorkYears', label:'总工龄', field:null,
+        render:function(st){ var a=st.enrollWorkYears||0, b=st.initialWorkYears||0; return Number(a+b).toFixed(2); }
+      },
+      { key:'birthday', label:'出生日期', field:'birthday' },
+      { key:'age', label:'年龄', field:'age' },
+      { key:'highestEducation', label:'最高学历', field:'highestEducation' },
+      { key:'marryStatus', label:'婚姻状况', field:'marryStatus' },
+      { key:'country', label:'国籍', field:'country' },
+      { key:'nationality', label:'民族', field:'nationality' },
+      { key:'nativePlace', label:'籍贯', field:'nativePlace' },
+      { key:'hukouType', label:'户口类型', field:'hukouType' },
+      { key:'hukouAddress', label:'户口地址', field:'hukouAddress' },
+      { key:'livingAddress', label:'居住地址', field:'livingAddress' },
+      { key:'workPlace', label:'联系地址', field:'workPlace' },
+      { key:'bloodType', label:'血型', field:'bloodType' },
+      { key:'politicalStatus', label:'政治面貌', field:'politicalStatus' },
+      { key:'nickName', label:'花名', field:'nickName' },
+      { key:'englishName', label:'英文名', field:'englishName' },
+      { key:'legalName', label:'证件姓名', field:'legalName' },
+      { key:'emergencyContactName', label:'紧急联系人', field:'emergencyContactName' },
+      { key:'emergencyContactMobile', label:'紧急电话', field:'emergencyContactMobile' },
+      { key:'weChatNo', label:'微信号', field:'weChatNo' },
+      { key:'qqNo', label:'QQ号', field:'qqNo' },
+      { key:'spouseName', label:'配偶', field:'spouseName' },
+      { key:'childName', label:'子女', field:'childName' },
+      { key:'workPhone', label:'工作电话', field:'workPhone' },
+      { key:'staffOrigin', label:'员工来源', field:'staffOriginLabel' },
+      { key:'workingHoursSystem', label:'工时制度', field:'workingHoursSystem' },
+      { key:'gradeSystemName', label:'职级体系', field:'gradeSystemName' },
+      { key:'validityStartDate', label:'有效期起', field:'validityStartDate' },
+      { key:'validityEndDate', label:'有效期止', field:'validityEndDate' },
+      { key:'createdDate', label:'创建时间', field:'createdDate' },
+      { key:'staffRemark', label:'备注', field:'staffRemark' },
+      { key:'leaveDate', label:'离职日期', field:'leaveDate' },
+      { key:'lastWorkDay', label:'最后工作日', field:'lastWorkDay' },
+      { key:'superiorName', label:'直属上级', field:null,
+        render:function(st,ctx){ var n=st.superiorName; return n&&n!=='-'?'<span class="superior-name">'+escapeHtml(n)+'</span>':ctx?'<span class="no-superior">-</span>':'<span class="no-superior">未查询</span>'; }
+      },
+    ];
+
+    // 列可见性（从 localStorage 加载）
+    var visibleCols = (function(){
+      try {
+        var saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (saved && Array.isArray(saved)) return saved;
+      } catch(e){}
+      // 默认可见列（核心字段 + 常用字段）
+      return ['staffName','staffNo','departmentName','positionName','mobileNo','enrollInDate','staffType','superiorName'];
+    })();
+
+    // ==============================
+    //  列管理工具
+    // ==============================
+    function saveVisibleCols() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(visibleCols)); } catch(e){}
+    }
+    function isColVisible(key) { return visibleCols.indexOf(key) !== -1; }
+
+    function buildTableHead() {
+      var html = '<tr>';
+      for (var c = 0; c < COLUMNS.length; c++) {
+        var col = COLUMNS[c];
+        var style = '';
+        var hide = !isColVisible(col.key) ? ' class="col-hide"' : '';
+        html += '<th' + style + hide + '>' + escapeHtml(col.label) + '</th>';
+      }
+      html += '</tr>';
+      document.getElementById('mainHead').innerHTML = html;
+    }
+
+    function openColConfig() {
+      var overlay = document.getElementById('colConfigOverlay');
+      var body = document.getElementById('colConfigBody');
+      var html = '';
+      for (var c = 0; c < COLUMNS.length; c++) {
+        var col = COLUMNS[c];
+        if (col.always) continue; // 序号和姓名不可隐藏
+        var checked = isColVisible(col.key) ? ' checked' : '';
+        html += '<label><input type="checkbox" class="col-cb" value="' + col.key + '"' + checked + '> ' + escapeHtml(col.label) + '</label>';
+      }
+      html += '<div class="col-config-stats">已选 ' + (visibleCols.length - 2) + ' / ' + (COLUMNS.length - 2) + '</div>';
+      body.innerHTML = html;
+      overlay.style.display = 'flex';
+    }
+
+    function closeColConfig() {
+      document.getElementById('colConfigOverlay').style.display = 'none';
+    }
+
+    // 列配置按钮事件
+    document.getElementById('colConfigBtn').addEventListener('click', openColConfig);
+    document.getElementById('colConfigClose').addEventListener('click', closeColConfig);
+    document.getElementById('colConfigApply').addEventListener('click', function(){
+      var checks = document.querySelectorAll('#colConfigBody .col-cb');
+      visibleCols = ['staffName']; // 始终保留姓名列
+      for (var i = 0; i < checks.length; i++) {
+        if (checks[i].checked) visibleCols.push(checks[i].value);
+      }
+      saveVisibleCols();
+      closeColConfig();
+      buildTableHead();
+      renderPage();
+    });
+    document.getElementById('colConfigSelectAll').addEventListener('click', function(){
+      document.querySelectorAll('#colConfigBody .col-cb').forEach(function(cb){ cb.checked = true; });
+    });
+    document.getElementById('colConfigDeselectAll').addEventListener('click', function(){
+      document.querySelectorAll('#colConfigBody .col-cb').forEach(function(cb){ cb.checked = false; });
+    });
+
+    // ==============================
+    //  工具函数
+    // ==============================
+    function parseDate(s) {
+      if (!s && s !== 0) return null;
+      if (typeof s === 'number' || (typeof s === 'string' && /^\d+$/.test(s))) {
+        var d = new Date(+s); return isNaN(d.getTime()) ? null : d;
+      }
+      if (typeof s === 'string' && s.indexOf('-') !== -1) {
+        var p = s.split('-'); var d2 = new Date(+p[0], +p[1] - 1, +p[2]);
+        return isNaN(d2.getTime()) ? null : d2;
+      }
+      return null;
+    }
+    function fmtDateStr(raw) {
+      if (!raw) return '-';
+      if (typeof raw === 'number') {
+        var d = new Date(raw);
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      }
+      if (typeof raw === 'string' && raw.indexOf('-') !== -1) return raw.substring(0, 10);
+      return raw;
+    }
+    function escapeHtml(text) {
+      if (!text && text !== 0) return '';
+      var div = document.createElement('div'); div.textContent = String(text); return div.innerHTML;
+    }
+
+    // ==============================
+    //  请求封装（Cookie 鉴权，匹配其他插件）
+    // ==============================
+    var DEFAULT_HEADERS = {
+      "x-requested-with": "XMLHttpRequest",
+      "IHR-Request-Origin": "frontend_skill_page",
+    };
+    function generateRId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 11); }
+    function getCookie(name) {
+      var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? decodeURIComponent(match[2]) : null;
+    }
+    var XSRF_TOKEN = getCookie("XSRF-TOKEN") || getCookie("xsrf-token");
+    function request(url, options) {
+      options = options || {};
+      var headers = options.headers || {};
+      var credentials = options.credentials || "include";
+      var restOptions = {};
+      for (var k in options) {
+        if (k !== 'headers' && k !== 'credentials') restOptions[k] = options[k];
+      }
+      var separator = url.indexOf("?") !== -1 ? "&" : "?";
+      var urlWithRId = url + separator + "r_id=" + generateRId();
+      var xsrfToken = getCookie("XSRF-TOKEN") || getCookie("xsrf-token");
+      return fetch(urlWithRId, {
+        credentials: credentials,
+        headers: Object.assign({}, DEFAULT_HEADERS,
+          xsrfToken ? {"x-xsrf-token": xsrfToken} : {}, headers),
+        method: restOptions.method,
+        body: restOptions.body,
+      });
+    }
+
+    // ==============================
+    //  数据状态
+    // ==============================
+    var allStaff = [];          // 所有员工（含上级信息）
+    var filteredStaff = [];
+    var pageSize = parseInt(localStorage.getItem('superiorPageSize')) || 25;
+    document.getElementById('pageSizeSelect').value = pageSize;
+    document.getElementById('pageSizeSelect').addEventListener('change', function() {
+      pageSize = parseInt(this.value);
+      try { localStorage.setItem('superiorPageSize', pageSize); } catch(e) {}
+      currentPage = 1;
+      renderPage();
+    });
+    var currentPage = 1;
+    var isLoading = false;
+    var superiorSet = {};       // { superiorId: superiorName }
+    var staffIdToName = {};     // { staffId: staffName }
+    var staffIdToStaff = {};    // { staffId: staffObj }
+    var hasOpenAPIData = false; // 是否成功获取上级数据
+    var currentReportType = 'Enum.Administration';
+    var reportTypeOptions = []; // 可用汇报类型列表
+
+    // ==============================
+    //  加载动画控制
+    // ==============================
+    function showLoading() {
+      document.getElementById('loadingCard').style.display = 'block';
+      document.getElementById('errorCard').style.display = 'none';
+      document.getElementById('statsRow').style.display = 'none';
+      document.getElementById('filterBar').style.display = 'none';
+      document.getElementById('backendNoticeCard').style.display = 'none';
+      var fill = document.getElementById('progressFill');
+      fill.style.width = '0%'; fill.classList.remove('indeterminate'); fill.classList.add('active');
+      document.getElementById('loadingTitle').textContent = '正在连接服务器...';
+      document.getElementById('loadingStatus').textContent = '准备中...';
+      document.getElementById('loadingDetail').textContent = '';
+    }
+
+    function updateLoading(page, totalPages, label, detail) {
+      var pct = totalPages > 0 ? Math.round(page / totalPages * 100) : 0;
+      var fill = document.getElementById('progressFill');
+      if (totalPages > 0) {
+        fill.style.width = pct + '%';
+        fill.classList.remove('indeterminate');
+      } else {
+        fill.classList.add('indeterminate');
+      }
+      document.getElementById('loadingStatus').textContent = totalPages > 0
+        ? label + ' 第 ' + page + '/' + totalPages + ' 页'
+        : label + '...';
+      document.getElementById('loadingDetail').textContent = detail || '';
+      document.getElementById('loadingTitle').textContent =
+        pct < 25 ? '小喵正在努力拉取数据...' :
+        pct < 50 ? '数据有点多，请耐心等待~' :
+        pct < 80 ? '快了快了，小喵加油中...' : '马上就好，正在整理数据...';
+    }
+
+    // ==============================
+    //  查询主流程
+    // ==============================
+    document.getElementById('queryBtn').addEventListener('click', function() {
+      if (isLoading) return;
+      isLoading = true;
+      var btn = document.getElementById('queryBtn');
+      btn.disabled = true; btn.textContent = '查询中...';
+
+      // 重置
+      allStaff = []; filteredStaff = [];
+      superiorSet = {}; staffIdToName = {}; staffIdToStaff = {};
+      hasOpenAPIData = false;
+      document.getElementById('mainBody').innerHTML = '<tr><td colspan="61" class="empty-state">查询中...</td></tr>';
+      document.getElementById('pager').style.display = 'none';
+      document.getElementById('sourceLabel').innerHTML = '<span class="status-dot empty"></span>查询中...';
+
+      showLoading();
+
+      doFullQuery().then(function() {
+        // 查询完成
+        document.getElementById('loadingCard').style.display = 'none';
+        document.getElementById('statsRow').style.display = 'grid';
+        document.getElementById('filterBar').style.display = 'flex';
+
+        // 更新统计 + 表头 + 上级下拉 + 渲染
+        updateStatsAndUI();
+
+        // 显示提示（如上级数据获取失败）
+        if (!hasOpenAPIData) {
+          var msg = allStaff.length > 0
+            ? '<strong>⚠ 上级数据获取失败：</strong>已加载花名册数据（' + allStaff.length + '人），但后端未返回有效上级信息。请检查后端插件是否正确部署、staffId 是否有值。'
+            : '<strong>⚠ 查询出错：</strong>未获取到任何员工数据。';
+          document.getElementById('backendNotice').innerHTML = msg;
+          document.getElementById('backendNoticeCard').style.display = 'block';
+        }
+
+        rebuildHeader();
+        applyFilter();
+      }).catch(function(err) {
+        document.getElementById('loadingCard').style.display = 'none';
+        document.getElementById('errorCard').style.display = 'block';
+        document.getElementById('errorMsg').textContent = '查询失败: ' + err.message;
+        document.getElementById('mainBody').innerHTML = '<tr><td colspan="61" class="empty-state">查询出错，请重试</td></tr>';
+      }).finally(function() {
+        isLoading = false; btn.disabled = false; btn.textContent = '查询数据';
+      });
+    });
+
+    // ==============================
+    //  完整查询流程
+    // ==============================
+    async function doFullQuery() {
+      // 第0步：获取可用的汇报类型
+      await fetchReportTypes();
+
+      // 第1步：获取所有在职员工（花名册 Gateway API）
+      await fetchAllStaff();
+
+      // 第2步：获取直属上级关系（后端 FaaS → OpenAPI）
+      await fetchSuperiors();
+    }
+
+    // ==============================
+    //  第1步：获取花名册员工
+    // ==============================
+    async function fetchAllStaff() {
+      var fields = [
+        // 仅已验证的基础字段
+        "id", "staffName", "staffNo", "departmentName", "positionName",
+        "staffType", "enrollInDate", "mobileNo",
+      ];
+      var page = 1, hasMore = true;
+
+      while (hasMore) {
+        updateLoading(page, 0, '在职员工', allStaff.length > 0 ? '已获取 ' + allStaff.length + ' 条' : '');
+
+        var response = await request("/web/gateway/roster/aggregate/v1/staffs/search", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            fields: fields,
+            page: page,
+            pageSize: "100",
+            flexSearchItems: [
+              {fieldType: "EQUAL", searchKey: "staffStatus", searchParam: "IN_SERVICE"}
+            ]
+          }),
+        });
+
+        if (!response.ok) throw new Error("花名册查询 HTTP " + response.status);
+        var result = await response.json();
+        if (result.code !== 0) throw new Error("花名册查询: " + (result.message || "code=" + result.code));
+
+        var list = result.data.list || [];
+        console.log('批次 ' + page + ' 原始数据样本:', JSON.stringify(list[0]).substring(0, 200));
+        for (var i = 0; i < list.length; i++) {
+          var s = list[i];
+          var staffId = s.id || '';
+          var staffName = s.staffName || '';
+
+          // 构建映射
+          if (staffId) {
+            staffIdToName[staffId] = staffName;
+            staffIdToStaff[staffId] = s;
+          }
+
+          allStaff.push({
+            staffId: staffId,
+            staffName: staffName,
+            staffNo: s.staffNo || '',
+            mobileNo: s.mobileNo || '',
+            departmentName: s.departmentName || '',
+            fullDepartmentName: s.fullDepartmentName || '',
+            positionName: s.positionName || '',
+            staffType: s.staffType || '',
+            staffTypeLabel: STAFF_TYPE_MAP[s.staffType] || s.staffType || '-',
+            enrollInDate: s.enrollInDate || '',
+            // 上级信息（后续由 fetchSuperiors 填充）
+            superiorId: null,
+            superiorName: null,
+          });
+        }
+
+        var totalPages = result.data.totalPages || 0;
+        updateLoading(page, totalPages, '在职员工', '已获取 ' + allStaff.length + ' 条');
+
+        if (page >= totalPages) hasMore = false; else page++;
+      }
+    }
+
+    // ==============================
+    //  第0步：获取汇报类型
+    // ==============================
+    async function fetchReportTypes() {
+      var sel = document.getElementById('reportTypeFilter');
+      sel.innerHTML = '<option value="">加载中...</option>';
+
+      try {
+        var resp = await fetch(FAAS_URL, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'Api-Key': FAAS_KEY},
+          body: JSON.stringify({action: 'getReportTypes'})
+        });
+        var raw = await resp.json();
+        var body = raw.data || raw;
+
+        if (body.code === 0) {
+          reportTypeOptions = body.data || [];
+        } else {
+          reportTypeOptions = [];
+          console.warn('获取汇报类型失败:', body.message);
+        }
+      } catch (e) {
+        reportTypeOptions = [];
+        console.warn('获取汇报类型异常:', e.message);
+      }
+
+      // 回退到三种标准类型
+      if (reportTypeOptions.length === 0) {
+        reportTypeOptions = [
+          {codeValue: 'Enum.Administration', displayName: '行政'},
+          {codeValue: 'Enum.Business', displayName: '业务'},
+          {codeValue: 'Enum.Finance', displayName: '财务'},
+        ];
+      }
+
+      // 更新下拉框
+      var html = '';
+      for (var r = 0; r < reportTypeOptions.length; r++) {
+        var opt = reportTypeOptions[r];
+        var selVal = opt.codeValue === currentReportType ? ' selected' : '';
+        html += '<option value="' + escapeHtml(opt.codeValue) + '"' + selVal + '>' + escapeHtml(opt.displayName) + '</option>';
+      }
+      sel.innerHTML = html;
+    }
+
+    // 汇报类型切换
+    document.getElementById('reportTypeFilter').addEventListener('change', function() {
+      var newType = this.value;
+      if (!newType || newType === currentReportType) return;
+      currentReportType = newType;
+      if (allStaff.length > 0) {
+        fetchSuperiors().then(function() {
+          updateStatsAndUI();
+        });
+      }
+    });
+
+    // ==============================
+    //  第2步：获取直属上级（后端 FaaS → OpenAPI）
+    // ==============================
+    async function fetchSuperiors() {
+      updateLoading(0, 0, '查询上级关系', '');
+
+      // 提取所有 staffId（去除非空值）
+      var allIds = [];
+      for (var i = 0; i < allStaff.length; i++) {
+        if (allStaff[i].staffId) allIds.push(allStaff[i].staffId);
+      }
+      console.log('提取员工ID: 共 ' + allStaff.length + ' 人, 有ID ' + allIds.length + ' 个');
+      console.log('前5个ID:', allIds.slice(0, 5));
+
+      if (allIds.length === 0) {
+        updateLoading(0, 0, '上级查询', '无员工ID，跳过');
+        return;
+      }
+
+      // 分批调用后端（后端通过 api_caller 调 OpenAPI，单次 100 个）
+      var batchSize = 100;
+      var totalBatches = Math.ceil(allIds.length / batchSize);
+      var allSuperiorData = [];
+      var hasError = false;
+
+      for (var b = 0; b < totalBatches; b++) {
+        var batch = allIds.slice(b * batchSize, (b + 1) * batchSize);
+        updateLoading(b + 1, totalBatches, '上级关系',
+          '已获取 ' + allSuperiorData.length + '/' + allIds.length);
+
+        try {
+          var resp = await fetch(FAAS_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Api-Key': FAAS_KEY,
+            },
+            body: JSON.stringify({
+              action: 'getSuperiors',
+              staffIds: batch,
+              reportToType: currentReportType
+            }),
+          });
+
+          if (!resp.ok) {
+            console.warn('FaaS HTTP ' + resp.status);
+            hasError = true;
+            continue;
+          }
+
+          var raw = await resp.json();
+          // FaaS 包裹: { code: 0, data: <后端返回值> }
+          var body = raw.data || raw;
+
+          console.log('FaaS 批次 ' + (b + 1) + ' 原始响应:', JSON.stringify(body).substring(0, 300));
+
+          if (body.code === 0) {
+            var items = body.data || [];
+            if (Array.isArray(items)) {
+              allSuperiorData = allSuperiorData.concat(items);
+              console.log('FaaS 批次 ' + (b + 1) + ' 成功: 获取 ' + items.length + ' 条');
+            }
+          } else {
+            console.warn('FaaS 批次 ' + (b + 1) + ' 返回错误:', JSON.stringify(body).substring(0, 200));
+            hasError = true;
+          }
+        } catch (e) {
+          console.warn('FaaS 批次 ' + (b + 1) + ' 异常:', e.message);
+          hasError = true;
+        }
+      }
+
+      // ===== 将上级数据映射回员工 =====
+      console.log('上级原始数据条数:', allSuperiorData.length);
+      if (allSuperiorData.length > 0) {
+        console.log('样本:', JSON.stringify(allSuperiorData[0]).substring(0, 200));
+        hasOpenAPIData = true;
+
+        // 建立 staffId → superiorId 映射
+        var supMap = {};
+        for (var j = 0; j < allSuperiorData.length; j++) {
+          var item = allSuperiorData[j];
+          if (item.staffId && item.superiorId) {
+            supMap[item.staffId] = item.superiorId;
+          }
+        }
+        console.log('supMap 条目数:', Object.keys(supMap).length);
+
+        // 收集所有上级 ID
+        var allSuperiorIds = {};
+        for (var sid in supMap) {
+          allSuperiorIds[supMap[sid]] = true;
+        }
+        console.log('上级 ID 去重数:', Object.keys(allSuperiorIds).length);
+
+        // 匹配上级姓名
+        var matchedCount = 0;
+        for (var k = 0; k < allStaff.length; k++) {
+          var st = allStaff[k];
+          var sid = supMap[st.staffId];
+          if (sid) {
+            st.superiorId = sid;
+            var supName = staffIdToName[sid];
+            st.superiorName = supName || sid;
+            matchedCount++;
+          }
+        }
+        console.log('已匹配上级的员工数:', matchedCount);
+        console.log('staffIdToName 大小:', Object.keys(staffIdToName).length);
+
+        // 构建 superiorSet（去重上级姓名）
+        for (var sid2 in allSuperiorIds) {
+          var name = staffIdToName[sid2];
+          if (name) {
+            superiorSet[sid2] = name;
+          } else {
+            console.log('上级 ID 未找到姓名:', sid2);
+          }
+        }
+        console.log('上级姓名集合大小:', Object.keys(superiorSet).length);
+      }
+
+      console.log('上级信息处理完成, hasOpenAPIData=', hasOpenAPIData);
+    }
+
+    function updateStatsAndUI() {
+      var total = allStaff.length;
+      var hasSuperior = 0, noSuperior = 0;
+      var supNames = {};
+      for (var i = 0; i < allStaff.length; i++) {
+        if (allStaff[i].superiorName && allStaff[i].superiorName !== '-') {
+          hasSuperior++;
+          supNames[allStaff[i].superiorName] = true;
+        } else {
+          noSuperior++;
+        }
+      }
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statSuperiors').textContent = Object.keys(supNames).length;
+      document.getElementById('statNoSuperior').textContent = noSuperior;
+      document.getElementById('statTime').textContent = new Date().toLocaleTimeString('zh-CN', {hour12: false});
+
+      var label = hasOpenAPIData
+        ? '<span class="status-dot live"></span>真实数据（含上级信息 — FaaS后端）'
+        : '<span class="status-dot error"></span>花名册数据（无上级信息）';
+      document.getElementById('sourceLabel').innerHTML = label;
+
+      buildTableHead();
+      document.getElementById('colConfigBtn').style.display = '';
+      buildSuperiorFilter();
+      applyFilter();
+    }
+
+    // ==============================
+    //  构建上级下拉框
+    // ==============================
+    function buildSuperiorFilter() {
+      var sel = document.getElementById('superiorFilter');
+      var html = '<option value="">全部直属上级</option>';
+
+      // 排序
+      var supNames = [];
+      for (var id in superiorSet) {
+        supNames.push({ id: id, name: superiorSet[id] || '' });
+      }
+      supNames.sort(function(a, b) {
+        return ((a.name || '')).localeCompare(b.name || '', 'zh-CN');
+      });
+
+      for (var i = 0; i < supNames.length; i++) {
+        html += '<option value="' + escapeHtml(supNames[i].id) + '">' + escapeHtml(supNames[i].name) + '</option>';
+      }
+
+      // 如果没有上级数据，加提示
+      if (supNames.length === 0) {
+        html += '<option value="" disabled>无上级数据</option>';
+      }
+
+      sel.innerHTML = html;
+    }
+
+    // ==============================
+    //  筛选与搜索
+    // ==============================
+    function applyFilter() {
+      var supId = document.getElementById('superiorFilter').value;
+      var search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+      var dept = (document.getElementById('deptInput').value || '').toLowerCase().trim();
+
+      filteredStaff = allStaff.filter(function(st) {
+        // 上级筛选
+        if (supId && st.superiorId !== supId) return false;
+
+        // 姓名搜索
+        if (search && st.staffName.toLowerCase().indexOf(search) === -1) return false;
+
+        // 部门搜索
+        if (dept && st.departmentName.toLowerCase().indexOf(dept) === -1) return false;
+
+        return true;
+      });
+
+      currentPage = 1;
+      renderPage();
+    }
+
+    document.getElementById('superiorFilter').addEventListener('change', function() { applyFilter(); });
+    document.getElementById('searchInput').addEventListener('input', function() { applyFilter(); });
+    document.getElementById('deptInput').addEventListener('input', function() { applyFilter(); });
+
+    // ==============================
+    //  渲染分页表格
+    // ==============================
+    function renderPage() {
+      var totalPages = Math.ceil(filteredStaff.length / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      var start = (currentPage - 1) * pageSize;
+      var pageRows = filteredStaff.slice(start, start + pageSize);
+      var startNum = filteredStaff.length === 0 ? 0 : start + 1;
+      var endNum = Math.min(start + pageSize, filteredStaff.length);
+
+      document.getElementById('filterCount').textContent =
+        '共 ' + filteredStaff.length + ' 条（显示 ' + startNum + '-' + endNum + '）';
+
+      var html = '';
+      for (var i = 0; i < pageRows.length; i++) {
+        var st = pageRows[i];
+        html += '<tr>';
+        for (var c = 0; c < COLUMNS.length; c++) {
+          var col = COLUMNS[c];
+          if (!isColVisible(col.key)) continue;
+
+          // 姓名列（加粗）
+          if (col.key === 'staffName') { html += '<td><strong>' + escapeHtml(st.staffName) + '</strong></td>'; continue; }
+
+          // 自定义渲染
+          if (col.render) {
+            html += '<td' + (col.key==='superiorName'?'':'') + '>' + col.render(st, hasOpenAPIData) + '</td>';
+            continue;
+          }
+
+          // 字段渲染
+          var val;
+          if (typeof col.field === 'function') {
+            val = col.field(st);
+          } else if (col.field) {
+            val = st[col.field];
+          }
+          html += '<td>' + (val != null && val !== '' ? escapeHtml(String(val)) : '-') + '</td>';
+        }
+        html += '</tr>';
+      }
+
+      if (filteredStaff.length === 0) {
+        html = '<tr><td colspan="61" class="empty-state">无匹配数据，请调整筛选条件</td></tr>';
+      }
+
+      document.getElementById('mainBody').innerHTML = html;
+      renderPager(totalPages);
+      buildSettingsPop();
+      initColResize();
+    }
+
+    function renderPager(totalPages) {
+      var pager = document.getElementById('pager');
+      if (totalPages <= 1) { pager.style.display = 'none'; return; }
+      pager.style.display = 'flex';
+
+      var html = '<button ' + (currentPage <= 1 ? 'disabled' : '') + ' data-action="prev">上一页</button>';
+      var showPages = [];
+      for (var p = 1; p <= totalPages; p++) {
+        if (p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2) showPages.push(p);
+        else if (showPages.length > 0 && showPages[showPages.length - 1] !== '...') showPages.push('...');
+      }
+      for (var i = 0; i < showPages.length; i++) {
+        if (showPages[i] === '...') html += '<span class="page-info">...</span>';
+        else html += '<button class="' + (showPages[i] === currentPage ? 'active' : '') + '" data-action="page" data-page="' + showPages[i] + '">' + showPages[i] + '</button>';
+      }
+      html += '<button ' + (currentPage >= totalPages ? 'disabled' : '') + ' data-action="next">下一页</button>';
+      html += '<span class="page-info">共 ' + totalPages + ' 页</span>';
+      pager.innerHTML = html;
+    }
+
+    // 分页事件委托
+    document.getElementById('pager').addEventListener('click', function(e) {
+      var btn = e.target.closest('button');
+      if (!btn || btn.disabled) return;
+      var action = btn.getAttribute('data-action');
+      if (action === 'prev') { currentPage--; renderPage(); }
+      else if (action === 'next') { currentPage++; renderPage(); }
+      else if (action === 'page') { currentPage = +btn.getAttribute('data-page'); renderPage(); }
+    });
+
+/* ---- 齿轮弹窗（复用现有 COLUMNS + isColVisible） ---- */
+function buildSettingsPop(){
+  var h='<div class="sttl" style="font-size:11px;color:var(--neutral-500);border-bottom:1px solid var(--neutral-200);padding-bottom:6px;margin-bottom:2px">显示列</div>';
+  var visibleCols=COLUMNS.filter(function(c){return c.key!=='#'});
+  visibleCols.forEach(function(c){
+    var ch=isColVisible(c.key)?'checked':'';
+    h+='<label style="display:flex;align-items:center;gap:7px;padding:5px 0;cursor:pointer;color:var(--neutral-600);font-size:13px"><input type="checkbox" style="margin:0;width:15px;height:15px;cursor:pointer" data-col="'+c.key+'" '+ch+'>'+(c.label||c.key)+'</label>';
+  });
+  document.getElementById('settingsPop').innerHTML=h;
+  document.querySelectorAll('#settingsPop input[type=checkbox]').forEach(function(cb){
+    cb.addEventListener('change',function(){
+      var k=this.getAttribute('data-col');
+      window.colState=window.colState||{};
+      window.colState[k]=this.checked?1:0;
+      try{localStorage.setItem('superiorColVis',JSON.stringify(window.colState))}catch(e){}
+      renderPage();
+    });
+  });
+}
+document.getElementById('settingsBtn').addEventListener('click',function(e){
+  e.stopPropagation();document.getElementById('settingsPop').classList.toggle('show');
+});
+document.addEventListener('click',function(){document.getElementById('settingsPop').classList.remove('show')});
+document.getElementById('settingsPop').addEventListener('click',function(e){e.stopPropagation()});
+
+/* 同步齿轮状态到 isColVisible */
+(function(){
+  var s;try{s=JSON.parse(localStorage.getItem('superiorColVis'))}catch(e){}
+  window.colState=s||{};
+  var orig=window.isColVisible||function(){return true};
+  window.isColVisible=function(k){
+    if(window.colState[k]!==undefined)return window.colState[k]!==0;
+    return orig(k);
+  };
+})();
+
+function rebuildHeader(){
+  var h='<tr>';
+  COLUMNS.forEach(function(c){
+    if(isColVisible(c.key))h+='<th>'+(c.label||c.key)+'</th>';
+  });
+  h+='</tr>';
+  document.getElementById('mainHead').innerHTML=h;
+}
+
+function initColResize(){
+  document.querySelectorAll('#mainTable thead th').forEach(function(th){
+    if(th.querySelector('.resizer'))return;
+    var div=document.createElement('div');div.className='resizer';th.appendChild(div);
+    var sx=0,sw=0,rz=0;
+    div.addEventListener('mousedown',function(e){
+      e.preventDefault();rz=1;sx=e.clientX;sw=th.offsetWidth;
+      document.body.style.cursor='col-resize';document.body.style.userSelect='none';
+      document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
+    });
+    function onMove(e){if(!rz)return;var w=Math.max(40,sw+(e.clientX-sx));th.style.width=w+'px';th.style.maxWidth=w+'px';var ci=Array.from(th.parentNode.children).indexOf(th);document.querySelectorAll('#mainBody tr').forEach(function(tr){var td=tr.children[ci];if(td){td.style.width=w+'px';td.style.maxWidth=w+'px'}});}
+    function onUp(){rz=0;document.body.style.cursor='';document.body.style.userSelect='';document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);}
+  });
+}
+
+  </script>
+</body>
+</html>

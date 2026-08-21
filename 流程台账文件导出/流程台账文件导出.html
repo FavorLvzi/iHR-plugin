@@ -1,0 +1,494 @@
+<!-- ihr360-html-page-builder: {"schema":"1","title":"流程台账详情","generatedAt":"2026-06-24T13:50:00+08:00"} -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <script src="https://plugin.ihr360.com/system/ihr360-base-framework.js" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>流程台账详情 - i人事插件</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--primary-500:#15B8A6;--primary-600:#0F766E;--primary-50:#e8f8f6;--neutral-100:#f5f6f7;--neutral-200:#eff0f2;--neutral-500:#8e929b;--neutral-600:#616670;--neutral-800:#262626;--bg-page:#f9fafb;--bg-card:#fff;--card-shadow:1px 1px 4px 4px rgba(83,84,85,.02);--radius-card:8px;--radius-control:4px;--red-500:#ef4444;--amber-500:#f59e0b;--green-500:#10b981;--blue-500:#3b82f6;--zebra-even:#fafbfc;font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;font-size:14px;color:var(--neutral-600);background:var(--bg-page)}
+    body{padding:16px;line-height:1.5}
+    .content-stack{display:grid;gap:12px;max-width:1500px;margin:0 auto}
+    .card{padding:14px 16px;border-radius:var(--radius-card);background:var(--bg-card);box-shadow:var(--card-shadow)}
+    .page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .page-title{margin:0;color:var(--neutral-800);font-size:16px;font-weight:600}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+    .status-dot.live{background:var(--green-500)}
+    .status-dot.empty{background:var(--neutral-500)}
+    .button{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid var(--neutral-200);border-radius:var(--radius-control);background:#fff;color:var(--neutral-600);cursor:pointer;font-size:13px;font-family:inherit}
+    .button:disabled{opacity:.5;cursor:not-allowed}
+    .button-primary{border-color:var(--primary-500);background:var(--primary-500);color:#fff}
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+    .stat{padding:10px 14px;border:1px solid var(--neutral-200);border-radius:var(--radius-card);background:#fff}
+    .stat-label{color:var(--neutral-500);font-size:11px}
+    .stat-value{margin-top:2px;font-size:20px;font-weight:600;color:var(--neutral-800)}
+    .rule-bar{padding:8px 12px;border-radius:var(--radius-control);font-size:12px;line-height:1.6;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+    .filter-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--neutral-200);margin-bottom:8px}
+    .filter-bar select,.filter-bar input[type=text]{height:28px;border:1px solid var(--neutral-200);border-radius:var(--radius-control);padding:0 8px;font-size:13px;color:var(--neutral-600);outline:0;background:#fff;font-family:inherit}
+    .filter-bar select{min-width:120px}
+    .filter-bar input[type=text]{width:150px}
+    .filter-bar input[type=text]:focus,.filter-bar select:focus{border-color:var(--primary-500)}
+    .filter-count{font-size:12px;color:var(--neutral-500);margin-left:auto}
+    .table-wrap{overflow:auto;max-height:calc(100vh - 280px)}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--neutral-200);white-space:nowrap;vertical-align:middle}
+    th{background:var(--neutral-100);color:var(--neutral-600);font-weight:500;font-size:12px;position:sticky;top:0;z-index:1}
+    th .resizer{position:absolute;right:0;top:0;bottom:0;width:5px;cursor:col-resize;z-index:2}
+    th .resizer:hover{background:var(--primary-500);opacity:.5}
+    .page-size{display:flex;align-items:center;gap:4px;margin-left:12px;font-size:12px;color:var(--neutral-500)}
+    .page-size select{height:26px;border:1px solid var(--neutral-200);border-radius:var(--radius-control);padding:0 4px;font-size:12px;color:var(--neutral-600);outline:0;background:#fff;cursor:pointer}
+    tbody tr:nth-child(even) td{background:var(--zebra-even)}
+    tbody tr:hover td{background:#eefaf8!important}
+    .col-cb{width:36px;text-align:center}
+    .col-cb input{cursor:pointer}
+    .file-link{color:var(--blue-500);text-decoration:none;word-break:break-all;max-width:260px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .file-link:hover{text-decoration:underline}
+    .file-type-tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:11px;font-weight:500;line-height:18px}
+    .type-attach{background:#dbeafe;color:#1d4ed8}
+    .type-image{background:#fce7f3;color:#be185d}
+    .empty-state{padding:40px;text-align:center;color:var(--neutral-500);font-size:13px;border:1px dashed var(--neutral-200);border-radius:var(--radius-card);background:var(--bg-page)}
+    .pager{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 0 0;font-size:13px}
+    .pager button{height:28px;padding:0 10px;border:1px solid var(--neutral-200);border-radius:var(--radius-control);background:#fff;color:var(--neutral-600);cursor:pointer;font-size:13px;font-family:inherit}
+    .pager button:disabled{opacity:.4;cursor:not-allowed}
+    .pager button.active{border-color:var(--primary-500);background:var(--primary-50);color:var(--primary-600);font-weight:500}
+    .pager .page-info{color:var(--neutral-500);margin:0 4px}
+    .batch-bar{display:flex;align-items:center;gap:8px;padding:6px 0;min-height:32px}
+    .batch-bar .sel-count{font-size:12px;color:var(--neutral-500)}
+    .batch-bar .dl-progress{font-size:12px;color:var(--amber-500)}
+    .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(0,0,0,.45);justify-content:center;align-items:flex-start;padding-top:60px;overflow-y:auto}
+    .modal-overlay.show{display:flex}
+    .modal-box{background:#fff;border-radius:var(--radius-card);box-shadow:0 20px 60px rgba(0,0,0,.2);max-width:900px;width:92%;max-height:80vh;display:flex;flex-direction:column}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--neutral-200)}
+    .modal-header h3{font-size:15px;color:var(--neutral-800)}
+    .modal-close{width:30px;height:30px;border:none;background:0 0;cursor:pointer;color:var(--neutral-500);font-size:22px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .modal-close:hover{background:var(--neutral-100)}
+    .modal-body{padding:16px 18px;overflow-y:auto;flex:1}
+    .modal-body img{max-width:100%;border-radius:4px}
+    .modal-body iframe{width:100%;height:65vh;border:none}
+    .modal-info{font-size:12px;color:var(--neutral-500);line-height:1.8}
+    .modal-info strong{color:var(--neutral-600)}
+    .settings-wrap{position:relative;display:inline-block}
+    .settings-btn{width:28px;height:28px;border:1px solid var(--neutral-200);border-radius:var(--radius-control);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;color:var(--neutral-600);line-height:1;vertical-align:middle}
+    .settings-btn:hover{border-color:var(--primary-500);color:var(--primary-500)}
+    .settings-pop{display:none;position:absolute;right:0;top:34px;background:#fff;border:1px solid var(--neutral-200);border-radius:var(--radius-card);box-shadow:0 4px 16px rgba(0,0,0,.12);padding:10px 14px;min-width:190px;z-index:20;font-size:13px}
+    .settings-pop.show{display:block}
+    .settings-pop label{display:flex;align-items:center;gap:7px;padding:5px 0;cursor:pointer;color:var(--neutral-600)}
+    .settings-pop label input[type=checkbox]{margin:0;width:15px;height:15px;cursor:pointer}
+    .settings-pop label:hover{color:var(--neutral-800)}
+    .settings-pop .sttl{font-size:11px;color:var(--neutral-500);border-bottom:1px solid var(--neutral-200);padding-bottom:6px;margin-bottom:2px}
+  </style>
+</head>
+<body>
+<div class="content-stack">
+  <section class="card">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">流程台账详情</h1>
+        <span style="font-size:12px;">一键拉取后端数据，展示流程详情及附件</span>
+      </div>
+      <div class="toolbar">
+        <span style="font-size:12px;" id="sourceLabel"><span class="status-dot empty"></span>等待导入</span>
+        <button class="button" id="exportBtn" type="button" disabled>导出CSV</button>
+      </div>
+    </div>
+    <div class="rule-bar">点击下方「一键拉取台账」→ 自动调用后端接口，返回流程详情及附件</div>
+    <div style="margin-top:8px;">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="button button-primary" id="faasFetchBtn" type="button">一键拉取台账</button>
+        <span style="font-size:11px;color:var(--neutral-500);" id="loadStatus"></span>
+      </div>
+    </div>
+  </section>
+  <section class="stats-row" id="statsRow" style="display:none;">
+    <div class="stat"><div class="stat-label">审批流程总数</div><div class="stat-value" id="statProcess">0</div></div>
+    <div class="stat"><div class="stat-label">文件总数</div><div class="stat-value" id="statFiles">0</div></div>
+    <div class="stat"><div class="stat-label">附件数</div><div class="stat-value" id="statAttach">0</div></div>
+    <div class="stat"><div class="stat-label">图片数</div><div class="stat-value" id="statImage">0</div></div>
+  </section>
+  <section class="card">
+    <div class="filter-bar" id="filterBar" style="display:none;">
+      <input type="text" id="searchInput" placeholder="搜索流程关键词...">
+      <input type="text" id="applicantInput" placeholder="搜索申请人...">
+      <input type="text" id="processCodeInput" placeholder="搜索审批编号...">
+      <input type="date" id="dateFrom" title="开始日期">
+      <input type="date" id="dateTo" title="结束日期">
+      <select id="typeFilter"><option value="">全部类型</option><option value="attach">附件</option><option value="image">图片</option></select>
+      <input type="text" id="templateSearch" placeholder="搜索审批模板...">
+      <select id="templateFilter"><option value="">全部审批模板</option></select>
+      <span class="filter-count" id="filterCount"></span>
+      <span class="settings-wrap">
+        <button class="settings-btn" id="settingsBtn" title="列设置">⚙</button>
+        <div class="settings-pop" id="settingsPop"></div>
+      </span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead id="theadInner"><tr>
+          <th class="col-cb"><input type="checkbox" id="selectAll" title="全选/取消"></th>
+          <th>审批编号</th><th>审批名称</th><th>发起人</th><th>发起时间</th><th>审批摘要</th><th>文件</th>
+        </tr></thead>
+        <tbody id="mainBody">
+          <tr><td colspan="7" class="empty-state" id="emptyStateCell">点击「一键拉取台账」查看数据</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="batch-bar" id="batchBar" style="display:none;">
+      <button class="button button-primary" id="batchDlBtn" type="button" disabled>批量下载</button>
+      <span class="sel-count" id="selCount">未选中流程</span>
+      <span class="dl-progress" id="dlProgress"></span>
+    </div>
+    <div style="font-size:11px;color:var(--neutral-500);padding:0 0 4px;line-height:1.5;display:none;" id="batchHint">打包在浏览器内存中完成，单文件&gt;50MB或总包&gt;200MB可能因内存不足失败；文件URL需允许跨域读取</div>
+    <div class="pager" id="pager" style="display:none;">
+      <span class="page-size">每页<select id="pageSizeSelect"><option value="25">25</option><option value="50">50</option><option value="100">100</option><option value="200">200</option></select>条</span>
+    </div>
+  </section>
+</div>
+<div class="modal-overlay" id="previewModal">
+  <div class="modal-box">
+    <div class="modal-header"><h3 id="modalFileName">文件预览</h3><button class="modal-close" id="modalClose">&times;</button></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+<script>
+/* 小齿轮点击弹出 */
+document.getElementById('settingsBtn').addEventListener('click',function(e){
+  e.stopPropagation();
+  document.getElementById('settingsPop').classList.toggle('show');
+});
+document.addEventListener('click',function(){document.getElementById('settingsPop').classList.remove('show')});
+document.getElementById('settingsPop').addEventListener('click',function(e){e.stopPropagation()});
+
+var FAAS_URL='https://faasapi.ihr360.com/public/api/function/execute/v1/1115221717908856832/version/latest';
+var FAAS_KEY='41WpwVeCGVEo2gdlbLi3pX7ewAwA9q52IuhWuxzs';
+document.getElementById('faasFetchBtn').addEventListener('click',async function(){
+  var btn=document.getElementById('faasFetchBtn'),st=document.getElementById('loadStatus');
+  btn.disabled=1;btn.textContent='拉取中...';st.textContent='正在调用后端...';st.style.color='var(--neutral-500)';
+  try{
+    var r=await fetch(FAAS_URL,{method:'POST',mode:'cors',credentials:'omit',headers:{'Content-Type':'application/json','Api-Key':FAAS_KEY},body:JSON.stringify({input:{}})});
+    var t=await r.text();if(!r.ok)throw Error('HTTP '+r.status);
+    var d=JSON.parse(t);
+    if(d&&d.data&&typeof d.data==='object'&&'code'in d.data)d=d.data;
+    loadData(d);
+  }catch(e){st.textContent='拉取失败: '+e.message.substring(0,100);st.style.color='var(--red-500)';console.error(e)}
+  finally{btn.disabled=0;btn.textContent='一键拉取台账'}
+});
+function loadData(data){
+  var s=data&&data.data||{};var f=s.files||[];var p=s.processes;
+  if(!p||!p.length){document.getElementById('loadStatus').textContent='未找到流程数据';return}
+  p.forEach(function(x){if(!x.formFields)x.formFields={};if(!x.files)x.files=[]});
+  window.allRawFiles=f;window.formFieldsByTemplate=s.formFieldsByTemplate||{};
+  allProcesses=p;selectedKeys={};filteredProcs=[];
+  populateTemplateFilter(p);
+  rebuildHeader(document.getElementById('templateFilter').value);
+  document.getElementById('statProcess').textContent=p.length;
+  document.getElementById('statFiles').textContent=f.length;
+  document.getElementById('statAttach').textContent=s.attachCount||f.filter(function(x){return x.fileType==='attach'}).length;
+  document.getElementById('statImage').textContent=s.imageCount||f.filter(function(x){return x.fileType==='image'}).length;
+  document.getElementById('statsRow').style.display='grid';
+  document.getElementById('batchHint').style.display='block';
+  applyFilter();document.getElementById('filterBar').style.display='flex';document.getElementById('exportBtn').disabled=0;
+  document.getElementById('batchBar').style.display='flex';
+  document.getElementById('sourceLabel').innerHTML='<span class="status-dot live"></span>已加载 '+p.length+' 个流程';
+  document.getElementById('loadStatus').textContent='✓ 成功加载 '+p.length+' 个流程';
+  updateBatchUI();
+}
+
+/* ---- 列配置 ---- */
+var COLUMNS=[
+  {key:'processCode',label:'审批编号',defShow:1},
+  {key:'templateName',label:'审批名称',defShow:1},
+  {key:'applicantName',label:'发起人',defShow:1},
+  {key:'createTime',label:'发起时间',defShow:1},
+  {key:'title',label:'审批摘要',defShow:1},
+  {key:'files',label:'文件',defShow:1}
+];
+function loadColumnVis(){
+  var saved;try{saved=JSON.parse(localStorage.getItem('procColVis'))}catch(e){}
+  window.columnVis=saved||{};
+  COLUMNS.forEach(function(c){if(window.columnVis[c.key]===undefined)window.columnVis[c.key]=c.defShow});
+}
+function saveColumnVis(){
+  try{localStorage.setItem('procColVis',JSON.stringify(window.columnVis))}catch(e){}
+  buildSettingsPop();rebuildHeader(document.getElementById('templateFilter').value);applyFilter();
+}
+function isColVis(k){
+  var v=window.columnVis[k];
+  if(v===undefined)return k.indexOf('cf_')!==0?1:0;
+  return v!==0;
+}
+loadColumnVis();
+
+var allProcesses=[],filteredProcs=[],currentPage=1,selectedKeys={};
+function procKey(p){return p.processId||p.title}
+/* 每页行数，从 localStorage 读取 */
+var pageSize=parseInt(localStorage.getItem('procPageSize'))||25;
+document.getElementById('pageSizeSelect').value=pageSize;
+document.getElementById('pageSizeSelect').addEventListener('change',function(){
+  pageSize=parseInt(this.value);
+  try{localStorage.setItem('procPageSize',pageSize)}catch(e){}
+  currentPage=1;renderPage();
+});
+
+/* ---- 小齿轮设置弹窗 ---- */
+function buildSettingsPop(){
+  var html='<div class="sttl">显示列</div>';
+  COLUMNS.forEach(function(c){
+    var ch=isColVis(c.key)?'checked':'';
+    html+='<label><input type="checkbox" data-col="'+c.key+'" '+ch+'>'+c.label+'</label>';
+  });
+  /* 自定义字段（当前模板有效） */
+  var fks=window.activeFormKeys||[];
+  if(fks.length){
+    html+='<div class="sttl" style="margin-top:6px;">自定义字段</div>';
+    fks.forEach(function(k){
+      var ck=window.columnVis['cf_'+k]!==0?'checked':'';
+      html+='<label><input type="checkbox" data-col="cf_'+k+'" '+ck+'>'+esc(k)+'</label>';
+    });
+  }
+  document.getElementById('settingsPop').innerHTML=html;
+  document.querySelectorAll('#settingsPop input[type=checkbox]').forEach(function(cb){
+    cb.addEventListener('change',function(){
+      window.columnVis[this.getAttribute('data-col')]=this.checked?1:0;
+      saveColumnVis();
+    });
+  });
+}
+
+/* ---- 表头重建（按列可见性） ---- */
+function rebuildHeader(tpl){
+  /* 保存当前列宽 */
+  var savedW={};
+  document.querySelectorAll('#theadInner th').forEach(function(th,i){savedW[i]=th.style.width});
+  var fks=tpl&&window.formFieldsByTemplate&&window.formFieldsByTemplate[tpl]||[];window.activeFormKeys=fks;
+  var cols=['cb','#'];
+
+  /* 固定列 */
+  COLUMNS.forEach(function(c){if(isColVis(c.key))cols.push(c.key)});
+  /* 自定义字段 */
+  fks.forEach(function(k){if(isColVis('cf_'+k))cols.push('cf_'+k)});
+
+  var h='<tr><th class="col-cb"><input type="checkbox" id="selectAll" title="全选/取消"></th>';
+  var colIdx=1;
+  COLUMNS.forEach(function(c){
+    if(!isColVis(c.key))return;
+    var sw=savedW[colIdx]||'';h+='<th'+(sw?' style="width:'+sw+';max-width:'+sw+'"':'')+'>'+c.label+'</th>';colIdx++;
+  });
+  fks.forEach(function(k){
+    if(!isColVis('cf_'+k))return;
+    var sw=savedW[colIdx]||'';h+='<th'+(sw?' style="width:'+sw+';max-width:'+sw+'"':'style="max-width:180px;"')+'>'+esc(k)+'</th>';colIdx++;
+  });
+  h+='</tr>';
+  document.getElementById('theadInner').innerHTML=h;
+  window.colsTemplate=cols;
+  var ec=document.getElementById('emptyStateCell');if(ec)ec.colSpan=cols.length;
+  buildSettingsPop();initColResize();
+}
+function applyFilter(){
+  var se=(document.getElementById('searchInput').value||'').toLowerCase().trim();
+  var ap=(document.getElementById('applicantInput').value||'').toLowerCase().trim();
+  var pc=(document.getElementById('processCodeInput').value||'').toLowerCase().trim();
+  var tv=document.getElementById('typeFilter').value;
+  var tpv=document.getElementById('templateFilter').value;
+  var ts=(document.getElementById('templateSearch').value||'').toLowerCase().trim();
+  var df=document.getElementById('dateFrom').value,dt=document.getElementById('dateTo').value;
+  filteredProcs=allProcesses.filter(function(p){
+    if(se&&!p.title.toLowerCase().includes(se)&&!Object.values(p.formFields||{}).some(function(v){return(v||'').toLowerCase().includes(se)}))return 0;
+    if(ap&&!(p.applicantName||'').toLowerCase().includes(ap))return 0;
+    if(pc&&!(p.processCode||p.processId||'').toLowerCase().includes(pc))return 0;
+    if(tv==='attach'&&!p.hasFile)return 0;
+    if(tv==='image'&&!p.files.some(function(f){return f.fileType==='image'}))return 0;
+    if(tpv&&p.templateName!==tpv)return 0;
+    if(ts&&!(p.templateName||'').toLowerCase().includes(ts))return 0;
+    if(df||dt){var d=(p.createTime||'').substring(0,10);if(!d||df&&d<df||dt&&d>dt)return 0}
+    return 1;
+  });currentPage=1;renderPage();
+}
+['searchInput','applicantInput','processCodeInput','templateSearch'].forEach(function(id){document.getElementById(id).addEventListener('input',function(){currentPage=1;applyFilter()})});
+['dateFrom','dateTo','typeFilter'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){currentPage=1;applyFilter()})});
+document.getElementById('templateFilter').addEventListener('change',function(){rebuildHeader(this.value);currentPage=1;applyFilter()});
+function renderPage(){
+  var n=Math.ceil(filteredProcs.length/pageSize)||1;if(currentPage>n)currentPage=n;
+  var start=(currentPage-1)*pageSize,rows=filteredProcs.slice(start,start+pageSize);
+  var s=filteredProcs.length===0?0:start+1,e=Math.min(start+pageSize,filteredProcs.length);
+  document.getElementById('filterCount').textContent='共 '+filteredProcs.length+' 个流程（显示 '+s+'-'+e+'）';
+  var fks=window.activeFormKeys||[];
+  /* 构建可见列顺序 */
+  function getVisibleCols(){
+    var a=[];
+    COLUMNS.forEach(function(c){if(isColVis(c.key))a.push(c)});
+    fks.forEach(function(k){if(isColVis('cf_'+k))a.push({key:'cf_'+k,label:k,isCustom:1})});
+    return a;
+  }
+  var visibleCols=getVisibleCols(),col=1+visibleCols.length,html='';
+  rows.forEach(function(p,i){
+    var k=procKey(p),ck=selectedKeys[k]?'checked':'',dt=(p.createTime||'').substring(0,10);
+    var cells='';
+    visibleCols.forEach(function(c){
+      if(c.isCustom)cells+='<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;font-size:12px;">'+esc((p.formFields||{})[c.label]||'')+'</td>';
+      else if(c.key==='templateName')cells+='<td>'+esc(p.templateName)+'</td>';
+      else if(c.key==='applicantName')cells+='<td>'+esc(p.applicantName||'-')+'</td>';
+      else if(c.key==='createTime')cells+='<td style="font-size:12px;">'+esc(dt)+'</td>';
+      else if(c.key==='title')cells+='<td>'+esc(p.title)+'</td>';
+      else if(c.key==='processCode')cells+='<td>'+esc(p.processCode||p.processId||'')+'</td>';
+      else if(c.key==='files'){
+        var fl='';
+        if(p.hasFile&&p.files.length){
+          var ls=[];
+          p.files.forEach(function(f,j){
+            var fn=f.fileName||'文件'+(j+1);
+            if(f.officeFileUrl)ls.push('<a href="#" onclick="preview(\''+escapeAttr(f.officeFileUrl)+'\',\''+escapeAttr(fn)+'\');return false;" style="color:var(--blue-500);text-decoration:none;font-size:12px;">'+(j+1)+'.预览</a>');
+            else if(f.fileUrl)ls.push('<a href="#" onclick="window.open(\''+escapeAttr(f.fileUrl)+'\',\'_blank\');return false;" style="color:var(--blue-500);text-decoration:none;font-size:12px;">'+(j+1)+'.下载</a>');
+          });
+          fl='<span style="display:flex;gap:4px;flex-wrap:wrap;">'+ls.join('')+'</span>';
+        }else fl='<span style="color:var(--neutral-400);font-size:12px;">无附件</span>';
+        cells+='<td>'+fl+'</td>';
+      }
+    });
+    html+='<tr><td class="col-cb"><input type="checkbox" class="file-cb" data-key="'+escAttr(k)+'" '+ck+'></td>'+cells+'</tr>';
+  });
+  if(!html)html='<tr><td colspan="'+col+'" class="empty-state">无匹配流程</td></tr>';
+  document.getElementById('mainBody').innerHTML=html;renderPager(n);
+  document.querySelectorAll('.file-cb').forEach(function(cb){
+    cb.addEventListener('change',function(){
+      if(this.checked)selectedKeys[this.getAttribute('data-key')]=1;else delete selectedKeys[this.getAttribute('data-key')];
+      updateBatchUI();
+    });
+  });
+  var sa=document.getElementById('selectAll');
+  sa.checked=rows.length>0&&rows.every(function(p){return selectedKeys[procKey(p)]});
+  sa.addEventListener('change',function(){
+    rows.forEach(function(p){var k=procKey(p);if(sa.checked)selectedKeys[k]=1;else delete selectedKeys[k]});
+    document.querySelectorAll('.file-cb').forEach(function(cb){cb.checked=sa.checked});updateBatchUI();
+  });
+}
+function updateBatchUI(){var c=Object.keys(selectedKeys).length;document.getElementById('selCount').textContent=c>0?'已选 '+c+' 个流程':'未选中流程';document.getElementById('batchDlBtn').disabled=c===0}
+function renderPager(n){
+  if(n<=1){document.getElementById('pager').style.display='none';return}
+  document.getElementById('pager').style.display='flex';
+  var h='<button '+(currentPage<=1?'disabled':'')+' onclick="currentPage--;renderPage();">上一页</button>';
+  for(var p=1;p<=n;p++){
+    if(p===1||p===n||Math.abs(p-currentPage)<=2)h+='<button class="'+(p===currentPage?'active':'')+'" onclick="currentPage='+p+';renderPage();">'+p+'</button>';
+    else if(h[h.length-1].content!=='…')h+='<span class="page-info">…</span>';
+  }
+  h+='<button '+(currentPage>=n?'disabled':'')+' onclick="currentPage++;renderPage();">下一页</button><span class="page-info">共 '+n+' 页</span>';
+  document.getElementById('pager').innerHTML=h;
+}
+function populateTemplateFilter(p){
+  var t={};p.forEach(function(x){if(x.templateName)t[x.templateName]=1});
+  var ks=Object.keys(t).sort(),s=document.getElementById('templateFilter');
+  s.innerHTML='<option value="">全部审批模板</option>';
+  ks.forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=k;s.appendChild(o)});
+}
+/* ---- 表头宽度可拖拽调整 ---- */
+function initColResize(){
+  document.querySelectorAll('#theadInner th').forEach(function(th){
+    /* 跳过已有手柄的列 */
+    if(th.querySelector('.resizer'))return;
+    var div=document.createElement('div');
+    div.className='resizer';
+    th.appendChild(div);
+    var startX=0,startW=0,resizing=0;
+    div.addEventListener('mousedown',function(e){
+      e.preventDefault();resizing=1;startX=e.clientX;startW=th.offsetWidth;
+      document.body.style.cursor='col-resize';document.body.style.userSelect='none';
+      document.addEventListener('mousemove',onMouseMove);
+      document.addEventListener('mouseup',onMouseUp);
+    });
+    function onMouseMove(e){
+      if(!resizing)return;
+      var w=Math.max(40,startW+(e.clientX-startX));
+      th.style.width=w+'px';th.style.maxWidth=w+'px';
+      /* 同步同列 td */
+      var colIdx=Array.from(th.parentNode.children).indexOf(th);
+      document.querySelectorAll('#mainBody tr').forEach(function(tr){
+        var td=tr.children[colIdx];if(td){td.style.width=w+'px';td.style.maxWidth=w+'px'}
+      });
+    }
+    function onMouseUp(){
+      resizing=0;document.body.style.cursor='';document.body.style.userSelect='';
+      document.removeEventListener('mousemove',onMouseMove);
+      document.removeEventListener('mouseup',onMouseUp);
+    }
+  });
+}
+window.preview=function(url,name){
+  document.getElementById('modalFileName').textContent=name;
+  document.getElementById('modalBody').innerHTML='<iframe src="'+url+'" loading="lazy"></iframe><div class="modal-info"><strong>文件名：</strong>'+esc(name)+'<br><strong>预览：</strong><a href="'+url+'" target="_blank">'+url+'</a></div>';
+  document.getElementById('previewModal').classList.add('show');
+};
+document.getElementById('modalClose').onclick=function(){document.getElementById('previewModal').classList.remove('show')};
+document.getElementById('previewModal').onclick=function(e){if(e.target===this)this.classList.remove('show')};
+function esc(t){if(!t)return '';var d=document.createElement('div');d.textContent=t;return d.innerHTML}
+function escapeAttr(t){if(!t)return '';return t.replace(/'/g,'%27').replace(/"/g,'%22')}
+function escAttr(t){if(!t)return '';return t.replace(/['"]/g,'').replace(/&/g,'&amp;')}
+document.getElementById('exportBtn').addEventListener('click',function(){
+  var fks=window.activeFormKeys||[];
+  var h=['序号'];
+  COLUMNS.forEach(function(c){if(isColVis(c.key))h.push(c.label)});
+  fks.forEach(function(k){if(isColVis('cf_'+k))h.push(k)});
+  var rows=allProcesses.map(function(p,i){
+    var r=[i+1];
+    COLUMNS.forEach(function(c){
+      if(!isColVis(c.key))return;
+      if(c.key==='templateName')r.push(p.templateName);
+      else if(c.key==='applicantName')r.push(p.applicantName||'');
+      else if(c.key==='createTime')r.push((p.createTime||'').substring(0,10));
+      else if(c.key==='title')r.push(p.title);
+      else if(c.key==='processCode')r.push(p.processCode||p.processId||'');
+      else if(c.key==='files')r.push(p.fileCount||0);
+    });
+    fks.forEach(function(k){if(isColVis('cf_'+k))r.push((p.formFields||{})[k]||'')});
+    return r;
+  });
+  var csv=[h.join(',')].concat(rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"'}).join(',')})).join('\n');
+  var b=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='流程台账详情_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+});
+document.getElementById('batchDlBtn').addEventListener('click',function(e){
+  e.preventDefault();var btn=document.getElementById('batchDlBtn'),prog=document.getElementById('dlProgress');
+  var todo=[];
+  allProcesses.forEach(function(p){if(selectedKeys[procKey(p)])(p.files||[]).forEach(function(f){todo.push(f)})});
+  if(!todo.length){prog.textContent='所选流程无文件可下载';return}
+  btn.disabled=1;btn.textContent='打包中...';
+  var zip=new JSZip(),total=todo.length,done=0,failed=0,nameCount={};
+  function next(i){
+    if(i>=total){
+      prog.textContent='正在生成压缩包...';
+      zip.generateAsync({type:'blob'}).then(function(blob){
+        var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='流程台账附件_'+new Date().toISOString().slice(0,10)+'.zip';
+        document.body.appendChild(a);a.click();document.body.removeChild(a);
+        setTimeout(function(){URL.revokeObjectURL(a.href)},60000);
+        prog.textContent='下载完成'+(failed?'（'+failed+'个失败）':'');prog.style.color='var(--green-500)';btn.textContent='批量下载';btn.disabled=0;
+      });return;
+    }
+    var f=todo[i],url=f.officeFileUrl||f.fileUrl;
+    if(!url){failed++;next(i+1);return}
+    var bn=f.fileName||'文件_'+(i+1);
+    if(!bn.includes('.')){var pm=url.match(/\/([^/?#]+?\.\w+)(?:$|[?#])/);if(pm)bn=decodeURIComponent(pm[1])}
+    nameCount[bn]=(nameCount[bn]||0)+1;
+    var zn=nameCount[bn]>1?bn.replace(/(\.\w+)?$/,'_'+nameCount[bn]+'$1'):bn,ne=!zn.includes('.');
+    prog.textContent='正在下载 ('+(done+failed+1)+'/'+total+') '+bn;
+    fetch(url,{mode:'cors',credentials:'omit'})
+    .then(function(r){if(!r.ok)throw Error('HTTP '+r.status);var ct=r.headers.get('content-type')||'';return r.blob().then(function(b){return{blob:b,contentType:ct}})})
+    .then(function(r){
+      if(ne){
+        var em={'image/jpeg':'jpg','image/png':'png','image/gif':'gif','image/webp':'webp','image/bmp':'bmp','video/mp4':'mp4','video/x-msvideo':'avi','video/quicktime':'mov','video/x-matroska':'mkv','video/webm':'webm','audio/mpeg':'mp3','audio/wav':'wav','audio/ogg':'ogg','application/pdf':'pdf','application/msword':'doc','application/vnd.openxmlformats-officedocument.wordprocessingml.document':'docx','application/vnd.ms-excel':'xls','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':'xlsx','application/vnd.ms-powerpoint':'ppt','application/vnd.openxmlformats-officedocument.presentationml.presentation':'pptx','application/zip':'zip','application/x-rar-compressed':'rar','text/plain':'txt','text/html':'html','text/csv':'csv','application/json':'json','application/xml':'xml'};
+        var ext='';for(var ct in em){if(r.contentType.indexOf(ct)!==-1){ext=em[ct];break}}if(!ext)ext=f.fileType==='image'?'jpg':'bin';zn=zn+'.'+ext;
+      }
+      zip.file(zn,r.blob);done++;prog.textContent='已完成 '+done+'/'+total;next(i+1);
+    })
+    .catch(function(e){failed++;console.warn('下载失败:',url,e.message);prog.textContent='下载失败 '+failed+' 个 ('+(done+failed)+'/'+total+')';next(i+1)});
+  }
+  next(0);
+});
+</script>
+</body>
+</html>

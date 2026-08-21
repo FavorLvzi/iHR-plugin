@@ -1,0 +1,751 @@
+<!-- ihr360-html-page-builder: {"schema":"1","title":"年终奖个税计算器","generatedAt":"2026-06-05T13:55:00+08:00"} -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <script src="https://plugin.ihr360.com/system/ihr360-base-framework.js" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>年终奖个税计算器</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      color: #333;
+      background: #f5f6fa;
+      line-height: 1.6;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 20px 16px 40px; }
+
+    /* 头部 */
+    .header {
+      background: #fff;
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .header h1 { font-size: 18px; font-weight: 600; color: #1a1a1a; }
+    .header .desc { font-size: 12px; color: #999; margin-top: 4px; }
+
+    /* 卡片通用 */
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .card h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    /* 表单 */
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+    .field { display: flex; flex-direction: column; }
+    .field label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .field label em { font-style: normal; color: #999; font-weight: 400; }
+    .field input {
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #333;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .field input:focus { border-color: #4e8cff; box-shadow: 0 0 0 2px rgba(78,140,255,.15); }
+    .field input::placeholder { color: #bfbfbf; }
+    .field .tip { font-size: 11px; color: #bbb; margin-top: 2px; }
+
+    /* 按钮 */
+    .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 14px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      height: 36px; padding: 0 18px; border: none; border-radius: 6px;
+      font-size: 14px; font-weight: 500; cursor: pointer; transition: all .15s;
+    }
+    .btn-calc { background: #4e8cff; color: #fff; }
+    .btn-calc:hover { background: #3d7ae8; }
+    .btn-reset { background: #f5f5f5; color: #666; border: 1px solid #d9d9d9; }
+    .btn-reset:hover { background: #ebebeb; }
+    .btn:active { transform: scale(.97); }
+
+    /* 报错 */
+    .err-box {
+      display: none;
+      background: #fff2f0; color: #d9363e;
+      border: 1px solid #ffccc7;
+      border-radius: 6px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px;
+    }
+    .err-box.show { display: block; }
+
+    /* 结果大卡片 */
+    .compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .compare-card {
+      border-radius: 8px; padding: 22px 18px; text-align: center; position: relative;
+    }
+    .compare-card .tag {
+      font-size: 12px; color: #999; margin-bottom: 6px;
+    }
+    .compare-card .num {
+      font-size: 28px; font-weight: 700; margin-bottom: 6px;
+    }
+    .compare-card .sub {
+      font-size: 11px; color: #aaa;
+    }
+    .card-a { background: #eff6ff; border: 1px solid #bdd7ff; }
+    .card-a .num { color: #2563eb; }
+    .card-b { background: #fef9e7; border: 1px solid #fce4a6; }
+    .card-b .num { color: #d48806; }
+
+    .compare-card.pick { border-width: 2px; }
+    .compare-card .ribbon {
+      display: none;
+      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      background: #22c55e; color: #fff; font-size: 11px; font-weight: 600;
+      padding: 2px 14px; border-radius: 10px;
+    }
+    .compare-card.pick .ribbon { display: block; }
+
+    /* 结论 */
+    .verdict {
+      padding: 14px 18px; border-radius: 6px; font-size: 14px; font-weight: 500; margin-top: 8px;
+    }
+    .verdict.green { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .verdict.amber { background: #fef9e7; color: #92400e; border: 1px solid #fce4a6; }
+    .verdict .save { font-size: 18px; font-weight: 700; }
+
+    /* 明细表格 */
+    .tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px; }
+    .tbl th, .tbl td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #f5f5f5; vertical-align: top; }
+    .tbl th { font-weight: 600; color: #999; font-size: 12px; background: #fafafa; }
+    .tbl .formula-col { color: #2563eb; font-family: "SF Mono","Monaco","Consolas",monospace; font-size: 11px; line-height: 1.5; }
+    .tbl .process-col { font-size: 11px; color: #999; }
+    .tbl .result-col { font-family: "SF Mono","Monaco","Consolas",monospace; font-weight: 600; text-align: right; white-space: nowrap; }
+    .tbl tr.sum td { font-weight: 600; color: #2563eb; background: #f8faff; }
+    .tbl tr.sum2 td { font-weight: 600; color: #d48806; background: #fef9e7; }
+
+    .tbl.rate th, .tbl.rate td { text-align: center; }
+    .tbl.rate .hl { background: #eff6ff; font-weight: 600; }
+
+    .steps { margin: 12px 0; }
+    .steps h4 { font-size: 14px; font-weight: 600; margin: 12px 0 8px; }
+    .steps h4.blue { color: #2563eb; }
+    .steps h4.gold { color: #d48806; }
+
+    /* 公式推导块 */
+    .derive { background: #fafafa; border: 1px solid #eee; border-radius: 6px; padding: 14px 18px; margin-bottom: 14px; }
+    .derive h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+    .derive h3.blue { color: #2563eb; }
+    .derive h3.gold { color: #d48806; }
+    .derive .step-line {
+      display: flex; align-items: flex-start; gap: 10px; padding: 5px 0; font-size: 13px; color: #555;
+    }
+    .derive .step-line .no {
+      flex-shrink: 0; width: 22px; height: 22px; background: #4e8cff; color: #fff;
+      border-radius: 50%; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center;
+    }
+    .derive .step-line .no.no-gold { background: #d48806; }
+    .derive .step-line .no.no-eq { background: #888; }
+    .derive .step-line .ctn { flex: 1; }
+    .derive .step-line .ctn .math {
+      display: block; margin-top: 3px;
+      font-family: "SF Mono","Monaco","Consolas",monospace; font-size: 12px;
+      background: #fff; border: 1px dashed #ddd; border-radius: 4px; padding: 5px 10px;
+      color: #2563eb;
+    }
+    .derive .step-line .ctn .math.gold { color: #b45309; }
+
+    /* 详细计算过程 — 三步递进 */
+    .calc-step { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px dashed #eee; }
+    .calc-step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .calc-step-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .calc-step-desc { font-size: 11px; color: #aaa; margin-bottom: 12px; }
+    .calc-row { margin-bottom: 12px; display: flex; align-items: flex-start; gap: 0; }
+    .calc-row:last-child { margin-bottom: 0; }
+    .calc-method {
+      flex-shrink: 0; width: 68px; padding-top: 4px;
+      font-size: 11px; font-weight: 600; line-height: 1.4;
+    }
+    .calc-method-a { color: #2563eb; }
+    .calc-method-b { color: #d48806; }
+    .calc-body { flex: 1; min-width: 0; }
+    .calc-formula {
+      font-size: 13px; font-weight: 500; line-height: 1.4;
+      border-radius: 4px; padding: 6px 10px;
+    }
+    .calc-formula-a { color: #1e40af; background: #eff6ff; }
+    .calc-formula-b { color: #92400e; background: #fef9e7; }
+    .calc-sub {
+      font-size: 11px; color: #999; line-height: 1.5; padding: 2px 10px 0;
+      font-family: "SF Mono","Monaco","Consolas",monospace;
+    }
+    .calc-sub-a { color: #6b8fd4; }
+    .calc-sub-b { color: #c9952e; }
+    .calc-result {
+      flex-shrink: 0; width: 110px; text-align: right; padding-top: 4px;
+      font-family: "SF Mono","Monaco","Consolas",monospace; font-size: 15px;
+    }
+    .calc-result-a { color: #2563eb; font-weight: 700; }
+    .calc-result-b { color: #d48806; font-weight: 700; }
+    .calc-divider {
+      margin: 2px 10px; border-top: 1px dashed #ddd; height: 0;
+    }
+    .calc-summary {
+      background: #f8fafc; border-radius: 6px; padding: 14px 18px; margin-top: 8px;
+      font-size: 13px; line-height: 1.8;
+    }
+    .calc-summary .save { font-size: 16px; font-weight: 700; }
+    .calc-summary .save.blue { color: #2563eb; }
+    .calc-summary .save.gold { color: #d48806; }
+    .calc-summary .reason { font-size: 11px; color: #999; display: block; margin-top: 4px; }
+
+    /* 法律依据 */
+    .legal {
+      background: #fff; border-radius: 8px; padding: 18px 20px; margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06); border-left: 4px solid #4e8cff;
+    }
+    .legal h2 {
+      font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 14px; padding-bottom: 8px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .legal ul { list-style: none; padding: 0; }
+    .legal li {
+      position: relative; padding: 10px 0 10px 28px;
+      border-bottom: 1px solid #f5f5f5; font-size: 13px; color: #555; line-height: 1.7;
+    }
+    .legal li:last-child { border-bottom: none; }
+    .legal li::before { content: "⚖"; position: absolute; left: 0; top: 10px; font-size: 14px; }
+    .legal .lname { font-weight: 600; color: #1a1a1a; }
+    .legal .ldetail { color: #999; font-size: 12px; margin-top: 3px; }
+    .legal .ltag {
+      display: inline-block; background: #eff6ff; color: #2563eb; font-size: 11px;
+      padding: 1px 8px; border-radius: 10px; margin-top: 4px;
+    }
+    .legal .llink {
+      display: inline-block; font-size: 12px; color: #4e8cff; text-decoration: none;
+      margin-top: 4px; margin-right: 8px; vertical-align: middle;
+    }
+    .legal .llink:hover { text-decoration: underline; color: #2563eb; }
+
+    @media (max-width: 640px) {
+      .compare-row { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .tbl .formula-col { font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 页头 -->
+  <div class="header">
+    <h1>年终奖个税计算器</h1>
+    <p class="desc">对比"单独计税"与"并入综合所得计税"，按公式逐步推导 — 基于财政部 税务总局公告2023年第30号</p>
+  </div>
+
+  <!-- 输入区 -->
+  <div class="card">
+    <h2>参数录入</h2>
+    <div class="form-row">
+      <div class="field">
+        <label>当年累计收入（工资薪金）<em>元</em></label>
+        <input type="number" id="fIncome" placeholder="例：300000" min="0" step="0.01">
+      </div>
+      <div class="field">
+        <label>年终奖金额 <em>元</em></label>
+        <input type="number" id="fBonus" placeholder="例：100000" min="0" step="0.01">
+      </div>
+      <div class="field">
+        <label>累计减除费用月数</label>
+        <input type="number" id="fMonths" placeholder="默认 12" min="1" max="12" value="12">
+        <span class="tip">每月 5000 元，全年 60000 元</span>
+      </div>
+      <div class="field">
+        <label>累计专项扣除（三险一金）<em>元</em></label>
+        <input type="number" id="fSpecial" placeholder="例：3440" min="0" step="0.01" value="0">
+        <span class="tip">养老+医疗+失业+公积金，个人承担部分</span>
+      </div>
+      <div class="field">
+        <label>累计专项附加扣除 <em>元</em></label>
+        <input type="number" id="fSpecialAdd" placeholder="例：24000" min="0" step="0.01" value="0">
+        <span class="tip">子女教育+继续教育+住房贷款/租金+赡养老人+大病医疗+婴幼儿照护</span>
+      </div>
+      <div class="field">
+        <label>累计其他扣除 <em>元</em></label>
+        <input type="number" id="fOther" placeholder="例：0" min="0" step="0.01" value="0">
+        <span class="tip">企业年金、商业健康险等依法确定的其他扣除</span>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-calc" id="btnCalc">开始测算</button>
+      <button class="btn btn-reset" id="btnReset">重置参数</button>
+    </div>
+  </div>
+
+  <!-- 错误提示 -->
+  <div class="err-box" id="errBox"></div>
+
+  <!-- 结果区 -->
+  <div id="resultWrap" style="display:none;">
+
+    <!-- 计税基数 -->
+    <div class="card">
+      <h2>应纳税所得额计算</h2>
+      <table class="tbl">
+        <tr><th style="width:220px;">项目</th><th>金额</th></tr>
+        <tr><td>① 当年累计收入</td><td id="rIncome">-</td></tr>
+        <tr><td>② 累计减除费用（5000 × <span id="rMonths">-</span> 月）</td><td id="rBasic">-</td></tr>
+        <tr><td>③ 累计专项扣除（三险一金）</td><td id="rSpecial">-</td></tr>
+        <tr><td>④ 累计专项附加扣除</td><td id="rSpecialAdd">-</td></tr>
+        <tr><td>⑤ 累计其他扣除</td><td id="rOther">-</td></tr>
+        <tr class="sum"><td>累计应纳税所得额 = ① − ② − ③ − ④ − ⑤</td><td id="rTaxable">-</td></tr>
+      </table>
+    </div>
+
+    <!-- 方案对比 -->
+    <div class="compare-row">
+      <div class="compare-card card-a" id="cardA">
+        <div class="ribbon">推荐方案 ✓</div>
+        <div class="tag">方案一 · 单独计税</div>
+        <div class="num" id="taxA">¥0</div>
+        <div class="sub">工资薪金个税 <span id="taxSalary">¥0</span> + 年终奖个税 <span id="taxBonusPart">¥0</span></div>
+      </div>
+      <div class="compare-card card-b" id="cardB">
+        <div class="ribbon">推荐方案 ✓</div>
+        <div class="tag">方案二 · 并入综合所得计税</div>
+        <div class="num" id="taxB">¥0</div>
+        <div class="sub">综合所得（含年终奖）合并计算</div>
+      </div>
+    </div>
+
+    <!-- 结论 -->
+    <div class="card">
+      <div class="verdict" id="verdictBox">
+        <span id="verdictText"></span>
+      </div>
+    </div>
+
+    <!-- 完整公式推导 -->
+    <div class="card">
+      <h2>两种计税方式完整公式推导</h2>
+
+      <div class="derive">
+        <h3 class="blue">方案一：单独计税（全年一次性奖金单独计算）</h3>
+        <div class="step-line">
+          <span class="no">1</span>
+          <span class="ctn">计算工资薪金应纳税所得额
+            <span class="math">应纳税所得额 = 累计收入 − 减除费用(5000×月) − 专项扣除 − 专项附加扣除 − 其他扣除</span>
+          </span>
+        </div>
+        <div class="step-line">
+          <span class="no">2</span>
+          <span class="ctn">查工资薪金适用税率（年度综合所得税率表）
+            <span class="math">根据应纳税所得额确定适用税率 R₁ 和速算扣除数 D₁</span>
+          </span>
+        </div>
+        <div class="step-line">
+          <span class="no">3</span>
+          <span class="ctn">计算工资薪金应纳税额
+            <span class="math">工资个税 = 应纳税所得额 × R₁ − D₁</span>
+          </span>
+        </div>
+        <div class="step-line">
+          <span class="no">4</span>
+          <span class="ctn">计算年终奖月均金额
+            <span class="math">月均金额 = 全年一次性奖金 ÷ 12</span>
+          </span>
+        </div>
+        <div class="step-line">
+          <span class="no">5</span>
+          <span class="ctn">查年终奖适用税率（月度税率表，非年度表）
+            <span class="math">根据月均金额确定适用税率 R₂ 和速算扣除数 D₂</span>
+          </span>
+        </div>
+        <div class="step-line">
+          <span class="no">6</span>
+          <span class="ctn">计算年终奖应纳税额（不扣除费用，直接全额奖金计税）
+            <span class="math">年终奖个税 = 全年一次性奖金 × R₂ − D₂</span>
+          </span>
+        </div>
+        <div class="step-line">
+          <span class="no no-eq">=</span>
+          <span class="ctn" style="font-weight:600;">单独计税总额
+            <span class="math">总纳税额 = 工资个税 + 年终奖个税</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="derive">
+        <h3 class="gold">方案二：并入综合所得计税（年终奖合并到全年工资薪金）</h3>
+        <div class="step-line">
+          <span class="no no-gold">1</span>
+          <span class="ctn">计算综合所得应纳税所得额（含年终奖）
+            <span class="math gold">综合应纳税所得额 = (累计收入 − 减除费用 − 专项扣除 − 附加扣除 − 其他扣除) + 年终奖</span>
+          </span>
+        </div>
+        <div class="step-line">
+          <span class="no no-gold">2</span>
+          <span class="ctn">查适用税率（年度综合所得税率表）
+            <span class="math gold">根据综合应纳税所得额确定适用税率 R₃ 和速算扣除数 D₃</span>
+          </span>
+        </div>
+        <div class="step-line">
+          <span class="no no-eq">=</span>
+          <span class="ctn" style="font-weight:600;">并入综合所得总额
+            <span class="math gold">总纳税额 = 综合应纳税所得额 × R₃ − D₃</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 详细计算过程：三步递进 -->
+    <div class="card">
+      <h2>详细计算过程</h2>
+      <p style="font-size:12px;color:#999;margin-bottom:14px;">两种方式的本质差异：年终奖是否并入综合所得参与累进税率。以下用实际数值三步递进推导。</p>
+
+      <!-- 第一步 -->
+      <div class="calc-step">
+        <div class="calc-step-title">第一步 · 累计应纳税所得额</div>
+        <p class="calc-step-desc">从当年收入中减去减除费用及各项法定扣除，得出应纳税所得额。方案二在此基础上叠加年终奖。</p>
+        <div class="calc-row">
+          <div class="calc-method calc-method-a">方案一<br>单独计税</div>
+          <div class="calc-body">
+            <div class="calc-formula calc-formula-a">工资薪金应纳税所得额 = 累计收入 − 减除费用 − 专项扣除 − 附加扣除 − 其他扣除</div>
+            <div class="calc-sub calc-sub-a" id="cs1a_sub"></div>
+          </div>
+          <div class="calc-result calc-result-a" id="cs1a_result">-</div>
+        </div>
+        <div class="calc-row" style="margin-top:2px;">
+          <div class="calc-method calc-method-b">方案二<br>并入综合</div>
+          <div class="calc-body">
+            <div class="calc-formula calc-formula-b">综合所得应纳税所得额 = 工资薪金应纳税所得额 + 年终奖</div>
+            <div class="calc-sub calc-sub-b" id="cs1b_sub"></div>
+          </div>
+          <div class="calc-result calc-result-b" id="cs1b_result">-</div>
+        </div>
+      </div>
+
+      <!-- 第二步 -->
+      <div class="calc-step">
+        <div class="calc-step-title">第二步 · 累计应纳税额</div>
+        <p class="calc-step-desc">将应纳税所得额匹配对应税率表，得出应纳税额。方案一需分别查年度表和月度表，方案二仅查年度表。</p>
+        <div class="calc-row">
+          <div class="calc-method calc-method-a">方案一<br>单独计税</div>
+          <div class="calc-body">
+            <div class="calc-formula calc-formula-a">工资薪金应纳税额 = 应纳税所得额 × 税率 − 速算扣除数</div>
+            <div class="calc-sub calc-sub-a" id="cs2a_salary"></div>
+            <div class="calc-divider"></div>
+            <div class="calc-formula calc-formula-a" style="margin-top:4px;">年终奖应纳税额 = 年终奖 × 税率 − 速算扣除数</div>
+            <div class="calc-sub calc-sub-a" id="cs2a_bonus"></div>
+            <div class="calc-divider"></div>
+            <div style="padding:4px 10px;font-size:12px;font-weight:600;color:#1e40af;">合计 = 工资个税 + 年终奖个税</div>
+          </div>
+          <div class="calc-result calc-result-a" id="cs2a_result">-</div>
+        </div>
+        <div class="calc-row" style="margin-top:6px;">
+          <div class="calc-method calc-method-b">方案二<br>并入综合</div>
+          <div class="calc-body">
+            <div class="calc-formula calc-formula-b">综合所得应纳税额 = 应纳税所得额 × 税率 − 速算扣除数</div>
+            <div class="calc-sub calc-sub-b" id="cs2b_sub"></div>
+          </div>
+          <div class="calc-result calc-result-b" id="cs2b_result">-</div>
+        </div>
+      </div>
+
+      <!-- 第三步 -->
+      <div class="calc-step">
+        <div class="calc-step-title">第三步 · 差值比较</div>
+        <p class="calc-step-desc">对比两方案应纳税额，选择更优方案。差异源于年终奖是否推高了综合所得的税率档位。</p>
+        <div class="calc-summary" id="cs3_summary">
+          <span id="cs3_text"></span>
+          <span class="reason" id="cs3_reason"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 税率参考 -->
+    <div class="card">
+      <h2>税率参考表</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+        <div>
+          <h4 style="font-size:13px;color:#555;margin-bottom:8px;">综合所得年度税率表（方案一工资 / 方案二适用）</h4>
+          <table class="tbl rate" id="tblAnnual"><thead><tr><th>级</th><th>应纳税所得额</th><th>税率</th><th>速算扣除</th></tr></thead><tbody></tbody></table>
+        </div>
+        <div>
+          <h4 style="font-size:13px;color:#555;margin-bottom:8px;">年终奖月度税率表（方案一年终奖专用）</h4>
+          <table class="tbl rate" id="tblMonthly"><thead><tr><th>级</th><th>月均所得额</th><th>税率</th><th>速算扣除</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 法律法规依据 -->
+    <div class="legal">
+      <h2>📜 法律法规依据</h2>
+      <ul>
+        <li>
+          <div class="lname">《中华人民共和国个人所得税法》（2018年修订）</div>
+          <div class="ldetail">第二条 工资、薪金所得属于综合所得，按纳税年度合并计算。第六条 应纳税所得额 = 收入额 − 减除费用(6万元/年) − 专项扣除 − 专项附加扣除 − 其他扣除。</div>
+          <a href="https://www.chinatax.gov.cn/n810341/n810760/c3959585/content.html?from=singlemessage" target="_blank" rel="noopener" class="llink">📄 查看原文 →</a>
+          <span class="ltag">计税基础</span>
+        </li>
+        <li>
+          <div class="lname">《中华人民共和国个人所得税法实施条例》</div>
+          <div class="ldetail">第十三条至第十五条明确减除费用标准及专项扣除、专项附加扣除的具体范围。</div>
+          <span class="ltag">扣除标准</span>
+        </li>
+        <li>
+          <div class="lname">《关于个人所得税法修改后有关优惠政策衔接问题的通知》（财税〔2018〕164号）</div>
+          <div class="ldetail">第一条：居民个人取得全年一次性奖金，可选择单独计税（÷12查月度税率表）或并入综合所得计税。</div>
+          <span class="ltag">核心政策</span>
+        </li>
+        <li>
+          <div class="lname">《关于延续实施全年一次性奖金个人所得税政策的公告》（财政部 税务总局公告2023年第30号）</div>
+          <div class="ldetail">第一条：全年一次性奖金单独计税优惠政策延续至2027年12月31日。居民个人可选择单独计税或并入当年综合所得计算纳税。<strong>此为本计算器当前所依据的有效法律文件。</strong></div>
+          <a href="https://www.gov.cn/zhengce/zhengceku/202308/content_6900595.htm" target="_blank" rel="noopener" class="llink">📄 查看原文 →</a>
+          <span class="ltag">当前有效</span>
+        </li>
+        <li>
+          <div class="lname">《国家税务总局关于调整个人取得全年一次性奖金等计算征收个人所得税方法问题的通知》（国税发〔2005〕9号）</div>
+          <div class="ldetail">第二条、第三条：明确年终奖单独计税的具体方法 — 先将奖金÷12确定适用税率和速算扣除数，再以全额奖金计算应纳税额。</div>
+          <span class="ltag">计算方法</span>
+        </li>
+      </ul>
+    </div>
+
+  </div><!-- /resultWrap -->
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ============ 税率数据 ============
+  var ANNUAL = [
+    { max: 36000,    rate: 0.03, qd: 0 },
+    { max: 144000,   rate: 0.10, qd: 2520 },
+    { max: 300000,   rate: 0.20, qd: 16920 },
+    { max: 420000,   rate: 0.25, qd: 31920 },
+    { max: 660000,   rate: 0.30, qd: 52920 },
+    { max: 960000,   rate: 0.35, qd: 85920 },
+    { max: Infinity, rate: 0.45, qd: 181920 }
+  ];
+
+  var MONTHLY = [
+    { max: 3000,     rate: 0.03, qd: 0 },
+    { max: 12000,    rate: 0.10, qd: 210 },
+    { max: 25000,    rate: 0.20, qd: 1410 },
+    { max: 35000,    rate: 0.25, qd: 2660 },
+    { max: 55000,    rate: 0.30, qd: 4410 },
+    { max: 80000,    rate: 0.35, qd: 7160 },
+    { max: Infinity, rate: 0.45, qd: 15160 }
+  ];
+
+  function findRate(val, table) {
+    for (var i = 0; i < table.length; i++) {
+      if (val <= table[i].max) return table[i];
+    }
+    return table[table.length - 1];
+  }
+
+  function fm(n) {
+    if (typeof n !== 'number') n = parseFloat(n) || 0;
+    return '¥' + n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function fn(n) {
+    return Number(n || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function gv(id) {
+    var v = parseFloat(document.getElementById(id).value);
+    return isNaN(v) ? 0 : v;
+  }
+
+  function setText(id, text) {
+    document.getElementById(id).textContent = text;
+  }
+
+  // ============ 渲染税率表 ============
+  function renderRates(hiAnnual, hiMonthly) {
+    var ta = document.querySelector('#tblAnnual tbody');
+    var tm = document.querySelector('#tblMonthly tbody');
+    ta.innerHTML = '';
+    tm.innerHTML = '';
+
+    ANNUAL.forEach(function(r, i) {
+      var lo = i === 0 ? 0 : ANNUAL[i - 1].max + 1;
+      var hi = r.max === Infinity ? '> ' + lo.toLocaleString() : lo.toLocaleString() + ' – ' + r.max.toLocaleString();
+      var cls = i === hiAnnual ? ' class="hl"' : '';
+      ta.innerHTML += '<tr' + cls + '><td>' + (i + 1) + '</td><td>' + hi + '</td><td>' + (r.rate * 100) + '%</td><td>' + r.qd.toLocaleString() + '</td></tr>';
+    });
+
+    MONTHLY.forEach(function(r, i) {
+      var lo = i === 0 ? 0 : MONTHLY[i - 1].max + 1;
+      var hi = r.max === Infinity ? '> ' + lo.toLocaleString() : lo.toLocaleString() + ' – ' + r.max.toLocaleString();
+      var cls = i === hiMonthly ? ' class="hl"' : '';
+      tm.innerHTML += '<tr' + cls + '><td>' + (i + 1) + '</td><td>' + hi + '</td><td>' + (r.rate * 100) + '%</td><td>' + r.qd.toLocaleString() + '</td></tr>';
+    });
+  }
+
+  // ============ 核心计算 ============
+  function calc() {
+    var errEl = document.getElementById('errBox');
+    errEl.classList.remove('show');
+
+    var income  = gv('fIncome');
+    var bonus   = gv('fBonus');
+    var months  = gv('fMonths');
+    var special = gv('fSpecial');
+    var specAdd = gv('fSpecialAdd');
+    var other   = gv('fOther');
+
+    if (months < 1 || months > 12) {
+      errEl.textContent = '累计减除费用月数需在 1~12 之间';
+      errEl.classList.add('show');
+      return;
+    }
+
+    var basicDeduction = 5000 * months;
+    var taxableIncome = Math.max(0, income - basicDeduction - special - specAdd - other);
+
+    // 方案一：单独计税
+    var salaryRate = findRate(taxableIncome, ANNUAL);
+    var salaryTax  = Math.max(0, taxableIncome * salaryRate.rate - salaryRate.qd);
+
+    var bonusMonthly = bonus / 12;
+    var bonusRate  = findRate(bonusMonthly, MONTHLY);
+    var bonusTax   = Math.max(0, bonus * bonusRate.rate - bonusRate.qd);
+    var totalA     = salaryTax + bonusTax;
+
+    // 方案二：并入综合所得
+    var combinedBase = taxableIncome + bonus;
+    var combinedRate = findRate(combinedBase, ANNUAL);
+    var totalB       = Math.max(0, combinedBase * combinedRate.rate - combinedRate.qd);
+
+    // ---- 渲染 ----
+    document.getElementById('resultWrap').style.display = '';
+
+    // 基数明细
+    setText('rIncome',      fm(income));
+    setText('rMonths',      months);
+    setText('rBasic',       fm(basicDeduction));
+    setText('rSpecial',     fm(special));
+    setText('rSpecialAdd',  fm(specAdd));
+    setText('rOther',       fm(other));
+    setText('rTaxable',     fm(taxableIncome));
+
+    // 方案卡片
+    setText('taxA',         fm(totalA));
+    setText('taxSalary',    fm(salaryTax));
+    setText('taxBonusPart', fm(bonusTax));
+    setText('taxB',         fm(totalB));
+
+    var cardA = document.getElementById('cardA');
+    var cardB = document.getElementById('cardB');
+    cardA.classList.remove('pick');
+    cardB.classList.remove('pick');
+
+    // 结论
+    var vBox = document.getElementById('verdictBox');
+    vBox.className = 'verdict';
+    var diff = Math.abs(totalA - totalB);
+
+    if (totalA < totalB) {
+      cardA.classList.add('pick');
+      vBox.classList.add('green');
+      document.getElementById('verdictText').innerHTML =
+        '建议选择<strong>单独计税</strong>，可节省个税 <span class="save">' + fm(diff) + '</span>';
+    } else if (totalB < totalA) {
+      cardB.classList.add('pick');
+      vBox.classList.add('amber');
+      document.getElementById('verdictText').innerHTML =
+        '建议选择<strong>并入综合所得计税</strong>，可节省个税 <span class="save">' + fm(diff) + '</span>';
+    } else {
+      vBox.classList.add('green');
+      document.getElementById('verdictText').innerHTML = '两种方案应纳税额相同，均为 ' + fm(totalA);
+    }
+
+    // ===== 三步递进详细计算 =====
+    var salaryRateIdx = ANNUAL.indexOf(salaryRate) + 1;
+    var bonusRateIdx  = MONTHLY.indexOf(bonusRate) + 1;
+    var combinedRateIdx = ANNUAL.indexOf(combinedRate) + 1;
+
+    // 第一步：累计应纳税所得额
+    setText('cs1a_sub',    '↳ ' + fn(income) + ' − ' + fn(basicDeduction) + ' − ' + fn(special) + ' − ' + fn(specAdd) + ' − ' + fn(other) + ' = ' + fm(taxableIncome));
+    setText('cs1a_result', fm(taxableIncome));
+    setText('cs1b_sub',    '↳ ' + fn(taxableIncome) + ' + ' + fn(bonus) + ' = ' + fm(combinedBase));
+    setText('cs1b_result', fm(combinedBase));
+
+    // 第二步：累计应纳税额
+    setText('cs2a_salary', '↳ ' + fn(taxableIncome) + ' × ' + (salaryRate.rate * 100) + '% − ' + salaryRate.qd.toLocaleString() + ' = ' + fm(salaryTax) + '（年度表 第 ' + salaryRateIdx + ' 级）');
+    setText('cs2a_bonus',  '↳ ' + fn(bonus) + ' × ' + (bonusRate.rate * 100) + '% − ' + bonusRate.qd.toLocaleString() + ' = ' + fm(bonusTax) + '（月度表 第 ' + bonusRateIdx + ' 级，月均 ' + fn(bonusMonthly) + '）');
+    setText('cs2a_result', fm(totalA));
+    setText('cs2b_sub',    '↳ ' + fn(combinedBase) + ' × ' + (combinedRate.rate * 100) + '% − ' + combinedRate.qd.toLocaleString() + ' = ' + fm(totalB) + '（年度表 第 ' + combinedRateIdx + ' 级）');
+    setText('cs2b_result', fm(totalB));
+
+    // 第三步：差值比较
+    if (totalA < totalB) {
+      document.getElementById('cs3_text').innerHTML =
+        '方案一（单独计税）更优，可节省 <span class="save blue">' + fm(diff) + '</span>';
+      setText('cs3_reason',
+        '差异原因：方案二的合并基数 ' + fn(combinedBase) + ' 落入年度表第 ' + combinedRateIdx + ' 级（' + (combinedRate.rate * 100) + '%），'
+        + '高于方案一工资部分所在第 ' + salaryRateIdx + ' 级（' + (salaryRate.rate * 100) + '%），年终奖额外推高了税率档位。');
+    } else if (totalB < totalA) {
+      document.getElementById('cs3_text').innerHTML =
+        '方案二（并入综合所得）更优，可节省 <span class="save gold">' + fm(diff) + '</span>';
+      setText('cs3_reason',
+        '差异原因：方案一工资部分已落第 ' + salaryRateIdx + ' 级（' + (salaryRate.rate * 100) + '%），合并后虽基数增大但未跳档'
+        + '，或年终奖单独计税按月均 ' + fn(bonusMonthly) + ' 对应月度表第 ' + bonusRateIdx + ' 级税率偏高。');
+    } else {
+      document.getElementById('cs3_text').innerHTML = '两种方案应纳税额相同，均为 ' + fm(totalA);
+      setText('cs3_reason', '此时两种方案落入同一税率档位，且速算扣除数与税基关系导致结果无差异。');
+    }
+
+    // 税率表高亮
+    renderRates(ANNUAL.indexOf(combinedRate), MONTHLY.indexOf(bonusRate));
+
+    document.getElementById('resultWrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ============ 重置 ============
+  function reset() {
+    document.getElementById('fIncome').value    = '';
+    document.getElementById('fBonus').value     = '';
+    document.getElementById('fMonths').value    = '12';
+    document.getElementById('fSpecial').value   = '0';
+    document.getElementById('fSpecialAdd').value = '0';
+    document.getElementById('fOther').value     = '0';
+    document.getElementById('resultWrap').style.display = 'none';
+    document.getElementById('errBox').classList.remove('show');
+  }
+
+  // ============ 事件绑定（addEventListener，不用 onclick） ============
+  document.getElementById('btnCalc').addEventListener('click', calc);
+  document.getElementById('btnReset').addEventListener('click', reset);
+
+  // 初始税率表
+  renderRates(-1, -1);
+})();
+</script>
+</body>
+</html>

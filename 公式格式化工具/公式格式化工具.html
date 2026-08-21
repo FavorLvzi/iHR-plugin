@@ -1,0 +1,2209 @@
+<!-- ihr360-html-page-builder: {"schema":"1","title":"i人事公式格式化工具","generatedAt":"2026-05-28T13:29:00+08:00"} -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <script src="https://plugin.ihr360.com/system/ihr360-base-framework.js" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>i人事公式格式化工具</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #15B8A6; --primary-dark: #0F766E; --primary-bg: #e8f8f6;
+      --neutral-50: #fafafa; --neutral-100: #f5f6f7; --neutral-200: #eff0f2;
+      --neutral-500: #8e929b; --neutral-600: #616670; --neutral-800: #262626;
+      --bg-page: #f9fafb; --bg-card: #ffffff;
+      --card-shadow: 0 1px 3px rgba(0,0,0,.06);
+      --radius: 8px; --radius-sm: 4px;
+      --c-if: #5340B7; --c-and: #9A4E00; --c-choose: #0F766E;
+      --c-date: #1A6EA8; --c-fn: #7B2D88;
+      --c-search: #B5351A; --c-lookup: #1A78A2; --c-info: #6B6B6B;
+      --c-field: #2E6E00; --c-num: #C45000; --c-str: #B5351A; --c-op: #888780;
+      --c-p0: #5340B7; --c-p1: #0F766E; --c-p2: #9A4E00; --c-p3: #1A6EA8;
+    }
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      font-size: 14px; color: var(--neutral-600);
+      background: var(--bg-page); line-height: 1.5;
+    }
+    .wrap { max-width: 1500px; margin: 0 auto; padding: 20px 16px 40px; }
+    /* 双栏布局 */
+    .page-body {
+      display: flex; gap: 0; align-items: flex-start;
+    }
+    .main-col { flex: 1; min-width: 200px; overflow: hidden; }
+    .resize-handle {
+      width: 8px; flex-shrink: 0;
+      cursor: col-resize;
+      align-self: stretch;
+      min-height: 200px;
+      transition: background .15s;
+      margin: 0 4px;
+      border-radius: 2px;
+      user-select: none;
+    }
+    .resize-handle:hover,
+    .resize-handle.dragging {
+      background: var(--primary);
+    }
+    .side-col {
+      width: 520px; flex-shrink: 0;
+      position: sticky; top: 12px;
+    }
+    @media (max-width: 1080px) {
+      .page-body { flex-direction: column; }
+      .resize-handle { display: none; }
+      .side-col { width: 100% !important; position: static; }
+    }
+
+    /* 头部 */
+    .header {
+      background: #fff; border-radius: var(--radius);
+      padding: 18px 20px; margin-bottom: 14px;
+      box-shadow: var(--card-shadow);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    }
+    .header h1 { font-size: 17px; font-weight: 600; color: var(--neutral-800); }
+    .header .desc { font-size: 12px; color: var(--neutral-500); margin-top: 4px; }
+    .badge {
+      display: inline-block; font-size: 11px; padding: 2px 8px;
+      border-radius: 10px; background: var(--primary-bg); color: var(--primary-dark);
+      font-weight: 500; white-space: nowrap; margin-top: 2px;
+    }
+
+    /* 卡片 */
+    .card {
+      background: #fff; border-radius: var(--radius);
+      padding: 0; margin-bottom: 14px;
+      box-shadow: var(--card-shadow); overflow: hidden;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-bottom: 1px solid var(--neutral-200);
+      background: var(--neutral-50);
+    }
+    .card-header .label { font-size: 12px; font-weight: 500; color: var(--neutral-600); }
+    .card-actions { display: flex; gap: 6px; }
+
+    /* 按钮 */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      height: 28px; padding: 0 12px;
+      border: 1px solid var(--neutral-200); border-radius: var(--radius-sm);
+      background: #fff; color: var(--neutral-600); cursor: pointer;
+      font-size: 12px; font-family: inherit; transition: background .1s;
+    }
+    .btn:hover { background: var(--neutral-100); }
+    .btn-primary { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+    .btn-sm { height: 24px; padding: 0 8px; font-size: 11px; }
+
+    /* 输入区 */
+    textarea#input {
+      width: 100%; min-height: 130px;
+      padding: 12px 16px;
+      font-family: "Consolas", "Courier New", "PingFang SC", monospace;
+      font-size: 13px; color: var(--neutral-800);
+      border: none; outline: none; resize: vertical;
+      background: var(--neutral-50); line-height: 1.7;
+    }
+    textarea#input::placeholder { color: var(--neutral-500); }
+
+    /* 选项条 */
+    .opts-bar {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      padding: 8px 16px; border-bottom: 1px solid var(--neutral-200);
+      background: #fff;
+    }
+    .opt-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      height: 24px; padding: 0 10px;
+      border: 1px solid var(--neutral-200); border-radius: 12px;
+      font-size: 11px; color: var(--neutral-500);
+      cursor: pointer; user-select: none; transition: all .1s;
+    }
+    .opt-chip.on {
+      background: var(--primary-bg); border-color: var(--primary);
+      color: var(--primary-dark); font-weight: 500;
+    }
+    .opt-chip .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--neutral-500); flex-shrink: 0;
+    }
+    .opt-chip.on .dot { background: var(--primary); }
+
+    /* 输出区 */
+    #output {
+      padding: 14px 16px;
+      font-family: "Consolas", "Courier New", "PingFang SC", monospace;
+      font-size: 13px; line-height: 1.85;
+      white-space: pre; overflow-x: auto; min-height: 60px;
+      color: var(--neutral-800); background: #fff;
+    }
+    #output .placeholder { color: var(--neutral-500); font-style: italic; }
+
+    /* 语法高亮 */
+    .t-IF { color: var(--c-if); font-weight: 600; }
+    .t-AND { color: var(--c-and); font-weight: 600; }
+    .t-CHOOSE { color: var(--c-choose); font-weight: 600; }
+    .t-MATCH { color: var(--c-choose); font-weight: 600; }
+    .t-DATE { color: var(--c-date); font-weight: 600; }
+    .t-SEARCH { color: var(--c-search); font-weight: 600; }
+    .t-LOOKUP { color: var(--c-lookup); font-weight: 600; }
+    .t-INFO { color: var(--c-info); font-weight: 500; }
+    .t-FN { color: var(--c-fn); font-weight: 500; }
+    .t-field { color: var(--c-field); }
+    .t-num { color: var(--c-num); }
+    .t-str { color: var(--c-str); }
+    .t-op { color: var(--c-op); }
+    .t-p0 { color: var(--c-p0); }
+    .t-p1 { color: var(--c-p1); }
+    .t-p2 { color: var(--c-p2); }
+    .t-p3 { color: var(--c-p3); }
+
+    /* 统计栏 */
+    .stat-bar {
+      display: none; gap: 20px; flex-wrap: wrap;
+      padding: 7px 16px; border-top: 1px solid var(--neutral-200);
+      background: var(--neutral-50);
+    }
+    .stat-bar.show { display: flex; }
+    .stat-item { font-size: 11px; color: var(--neutral-500); }
+    .stat-item strong { color: var(--neutral-800); font-weight: 600; }
+
+    /* 纠错面板 */
+    .err-banner {
+      display: none; margin: 10px 14px 2px; padding: 10px 14px;
+      background: #fff5f5; border: 1px solid #fed7d7; border-radius: 6px;
+    }
+    .err-banner.show { display: block; }
+    .err-banner .err-summary {
+      font-size: 12px; font-weight: 600; color: #c53030; margin-bottom: 8px;
+    }
+    .err-item {
+      font-size: 11px; color: #9b2c2c; padding: 3px 0;
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .err-tag {
+      font-size: 10px; background: #fed7d7; color: #c53030;
+      padding: 1px 7px; border-radius: 3px; font-weight: 600;
+      flex-shrink: 0; white-space: nowrap;
+    }
+    .err-tag-fn {
+      font-size: 10px; background: #fefcbf; color: #975a16;
+      padding: 1px 7px; border-radius: 3px; font-weight: 600;
+      flex-shrink: 0; white-space: nowrap;
+    }
+    .err-ctx {
+      font-family: "Consolas","Courier New",monospace;
+      font-size: 11px; color: #744210; word-break: break-all;
+    }
+    .t-err-brk {
+      color: #e53e3e; background: #ffe0e0; border-radius: 2px;
+      font-weight: 700; padding: 0 1px; text-decoration: underline wavy #e53e3e;
+    }
+    .t-err-str {
+      color: #e53e3e; background: #ffe0e0; border-radius: 2px;
+      padding: 0 2px; text-decoration: underline wavy #e53e3e;
+    }
+    /* 内联函数参数错误标记（仅装饰，核心样式由 JS 内联承担，兼容沙盒） */
+    .fn-err-badge {
+      vertical-align: middle; cursor: help;
+    }
+
+    /* ── 逻辑说明面板 ── */
+    .logic-panel {
+      background: #fff; border-radius: var(--radius);
+      box-shadow: var(--card-shadow); overflow: hidden;
+    }
+    .logic-panel-hd {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; border-bottom: 1px solid var(--neutral-200);
+      background: var(--neutral-50); cursor: pointer; user-select: none;
+    }
+    .logic-panel-hd .lp-title {
+      font-size: 12px; font-weight: 600; color: var(--neutral-600);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .logic-panel-hd .lp-toggle {
+      font-size: 11px; color: var(--neutral-500); transition: transform .2s;
+    }
+    .logic-panel.collapsed .lp-toggle { transform: rotate(-90deg); }
+    .logic-panel-body {
+      padding: 14px 18px; max-height: none; overflow-y: auto;
+      transition: max-height .25s ease;
+    }
+    .logic-panel.collapsed .logic-panel-body { max-height: 0; padding: 0 14px; overflow: hidden; }
+
+    /* AI 解读区 */
+    .btn-ai {
+      height: 22px; padding: 0 9px; font-size: 11px;
+      background: linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff;
+      border: none; border-radius: 11px; cursor: pointer;
+      font-family: inherit; white-space: nowrap;
+      transition: opacity .15s;
+    }
+    .btn-ai:hover { opacity: .85; }
+    .btn-ai:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-ai-cfg {
+      height: 22px; width: 22px; padding: 0;
+      background: none; border: 1px solid var(--neutral-200);
+      border-radius: 50%; cursor: pointer; font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--neutral-500); transition: background .15s;
+    }
+    .btn-ai-cfg:hover { background: var(--neutral-100); }
+    .ai-section {
+      margin-top: 14px; border-top: 1px solid var(--neutral-200); padding-top: 12px;
+    }
+    .ai-section-hd {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .ai-section-title {
+      font-size: 11.5px; font-weight: 600;
+      color: #6366f1;
+    }
+    .ai-stop-btn {
+      font-size: 11px; padding: 2px 8px; border-radius: 4px;
+      border: 1px solid #f87171; background: #fff; color: #ef4444;
+      cursor: pointer; font-family: inherit;
+    }
+    .ai-content {
+      font-size: 12.5px; line-height: 1.8; color: var(--neutral-600);
+      white-space: pre-wrap; word-break: break-all;
+      min-height: 40px;
+    }
+    .ai-content .ai-cursor {
+      display: inline-block; width: 2px; height: 13px;
+      background: #6366f1; vertical-align: middle;
+      animation: blink .7s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+    .ai-error { color: #ef4444; font-size: 12px; }
+    /* API Key 弹窗 */
+    .ai-modal-mask {
+      position: fixed; inset: 0; background: rgba(0,0,0,.35);
+      z-index: 9999; display: flex; align-items: center; justify-content: center;
+    }
+    .ai-modal {
+      background: #fff; border-radius: 10px; padding: 24px 28px;
+      width: 380px; box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    }
+    .ai-modal-title { font-size: 15px; font-weight: 600; color: var(--neutral-800); margin-bottom: 6px; }
+    .ai-modal-desc { font-size: 12px; color: var(--neutral-500); margin-bottom: 14px; }
+    .ai-modal-input {
+      width: 100%; height: 36px; border: 1px solid var(--neutral-200);
+      border-radius: 6px; padding: 0 12px; font-size: 13px;
+      font-family: monospace; outline: none; margin-bottom: 16px;
+      transition: border-color .15s;
+    }
+    .ai-modal-input:focus { border-color: #6366f1; }
+    .ai-modal-row { display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
+    /* 记住配置开关 */
+    .ai-remember-row { margin-bottom: 14px; }
+    .ai-toggle-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      cursor: pointer; user-select: none;
+    }
+    .ai-toggle-track {
+      position: relative; display: inline-block;
+      width: 34px; height: 18px; border-radius: 9px;
+      background: var(--neutral-300); transition: background .2s;
+      flex-shrink: 0;
+    }
+    .ai-toggle-track.on { background: #6366f1; }
+    .ai-toggle-thumb {
+      position: absolute; top: 2px; left: 2px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+      transition: left .2s;
+    }
+    .ai-toggle-track.on .ai-toggle-thumb { left: 18px; }
+    .ai-remember-text { font-size: 12px; color: var(--neutral-700); font-weight: 500; }
+    .ai-remember-hint { display: block; font-size: 11px; color: var(--neutral-400); margin-top: 3px; margin-left: 42px; }
+    /* 眼睛 icon */
+    .ai-key-eye { margin-left: 6px; font-size: 12px; cursor: pointer; opacity: .5; transition: opacity .15s; }
+    .ai-key-eye:hover { opacity: 1; }
+    /* 清除按钮 */
+    .btn-danger-ghost {
+      color: #ef4444; background: none;
+      border: 1px solid #fca5a5; border-radius: 6px;
+      padding: 0 10px; height: 30px; font-size: 12px;
+      cursor: pointer; font-family: inherit; transition: all .15s;
+    }
+    .btn-danger-ghost:hover { background: #fef2f2; border-color: #ef4444; }
+    /* 预设服务商 */
+    .ai-presets-label { font-size: 11px; color: var(--neutral-500); margin-bottom: 6px; font-weight: 600; letter-spacing: .02em; }
+    .ai-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .ai-preset-btn {
+      padding: 4px 10px; font-size: 11.5px; border-radius: 12px;
+      border: 1px solid var(--neutral-200); background: var(--neutral-100);
+      color: var(--neutral-700); cursor: pointer; font-family: inherit;
+      transition: all .15s;
+    }
+    .ai-preset-btn:hover { background: #ede9fe; border-color: #8b5cf6; color: #6d28d9; }
+    .ai-preset-btn.active { background: #ede9fe; border-color: #6366f1; color: #4f46e5; font-weight: 600; }
+    /* 表单行 */
+    .ai-form-row { margin-bottom: 10px; }
+    .ai-form-label { display: block; font-size: 11.5px; color: var(--neutral-600); font-weight: 600; margin-bottom: 4px; }
+    /* modal 宽度扩大 */
+    .ai-modal { width: 460px; }
+
+    /* 逻辑树 */
+    .logic-empty {
+      font-size: 12px; color: var(--neutral-500); text-align: center;
+      padding: 24px 0; font-style: italic;
+    }
+    .logic-tree { font-size: 12px; line-height: 1.7; }
+    .lt-node { margin: 0; padding: 0; }
+    .lt-row {
+      display: flex; align-items: flex-start; gap: 4px;
+      padding: 2px 0;
+    }
+    .lt-indent { color: #d0d3d8; font-family: monospace; flex-shrink: 0; font-size: 11px; }
+    .lt-chip {
+      display: inline-block; flex-shrink: 0; margin-top: 1px;
+      padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 600;
+      line-height: 16px;
+    }
+    .lt-chip-if   { background: #ede9fe; color: #5340B7; }
+    .lt-chip-and  { background: #fef3c7; color: #9A4E00; }
+    .lt-chip-cond { background: #e0f2fe; color: #0369a1; }
+    .lt-chip-fn   { background: #f0fdf4; color: #166534; }
+    .lt-chip-date { background: #dbeafe; color: #1e40af; }
+    .lt-chip-srch { background: #fee2e2; color: #991b1b; }
+    .lt-chip-lkp  { background: #e0f2fe; color: #0e7490; }
+    .lt-chip-arr  { background: #f3f4f6; color: #374151; }
+    .lt-chip-true { background: #dcfce7; color: #166534; }
+    .lt-chip-false{ background: #fef2f2; color: #991b1b; }
+    .lt-chip-val  { background: #f9fafb; color: #6b7280; border: 1px solid #e5e7eb; }
+    .lt-text { color: var(--neutral-600); font-size: 11.5px; word-break: break-all; }
+    .lt-text em { font-style: normal; color: var(--neutral-800); font-weight: 500; }
+    .lt-branch-cond { border-left: 2px solid #a5b4fc; margin-left: 8px; padding-left: 8px; margin-bottom: 4px; }
+    .lt-branch-true { border-left: 2px solid #86efac; margin-left: 8px; padding-left: 8px; margin-bottom: 4px; }
+    .lt-branch-false{ border-left: 2px solid #fca5a5; margin-left: 8px; padding-left: 8px; margin-bottom: 4px; }
+    .lt-branch-arg  { border-left: 2px solid #d1d5db; margin-left: 8px; padding-left: 8px; margin-bottom: 2px; }
+    .lt-label {
+      font-size: 10px; font-weight: 600; color: #9ca3af; letter-spacing: .5px; padding: 3px 0 1px;
+    }
+    .lt-more { font-size: 11px; color: var(--neutral-500); font-style: italic; padding: 2px 0; }
+    .lt-meaning { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 4px; padding: 5px 10px; margin: 4px 0; font-size: 11.5px; }
+    .lt-meaning .lt-meaning-label { font-size: 10px; font-weight: 600; color: #92400e; margin-right: 4px; }
+    .lt-meaning .lt-meaning-text { color: #78350f; }
+    .lt-meaning .lt-meaning-text em { font-style: normal; color: #1e3a5f; font-weight: 500; }
+    .lt-stats {
+      display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 0 4px;
+      border-top: 1px solid var(--neutral-200); margin-top: 8px;
+    }
+    .lt-stat { font-size: 10px; color: var(--neutral-500); }
+    .lt-stat strong { color: var(--neutral-800); }
+    /* 函数名下方波浪线提示（缺参数），用 border-bottom 兜底兼容 */
+    .fn-name-warn {
+      text-decoration: underline wavy #f6c23e;
+      text-underline-offset: 3px;
+      /* 兼容不支持 text-decoration-style:wavy 的环境 */
+      border-bottom: 2px dotted #f6c23e;
+      padding-bottom: 1px;
+    }
+
+    /* 图例 */
+    .legend-card {
+      background: #fff; border-radius: var(--radius);
+      padding: 14px 16px; margin-bottom: 14px;
+      box-shadow: var(--card-shadow);
+    }
+    .legend-title {
+      font-size: 12px; font-weight: 500; color: var(--neutral-600);
+      margin-bottom: 10px;
+    }
+    .legend-grid {
+      display: flex; flex-wrap: wrap; gap: 6px 16px;
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--neutral-500);
+    }
+    .legend-swatch {
+      display: inline-block; width: 30px; height: 14px;
+      border-radius: 2px; text-align: center; line-height: 14px;
+      font-size: 10px; font-family: monospace; color: #fff; font-weight: 600;
+    }
+
+    /* 快捷键提示 */
+    .shortcut-tip {
+      font-size: 11px; color: var(--neutral-500); padding: 8px 16px;
+      border-top: 1px solid var(--neutral-200); background: var(--neutral-50);
+    }
+    kbd {
+      display: inline-block; padding: 0 4px; border: 1px solid var(--neutral-200);
+      border-radius: 3px; font-size: 10px; font-family: monospace;
+      background: #fff; color: var(--neutral-600);
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 头部 -->
+  <div class="header">
+    <div>
+      <h1>i人事公式格式化工具</h1>
+      <p class="desc">将多行嵌套公式自动缩进对齐，支持 IF / CHOOSE-MATCH / AND-OR 等结构化展示</p>
+    </div>
+    <span class="badge">格式化 · 高亮 · 结构分析</span>
+  </div>
+
+  <!-- 双栏主体 -->
+  <div class="page-body">
+  <div class="main-col">
+
+  <!-- 输入区 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="label">输入原始公式</span>
+      <div class="card-actions">
+        <button class="btn btn-sm" id="btn-clear">清空</button>
+        <button class="btn btn-sm" id="btn-sample">加载示例</button>
+        <button class="btn btn-sm" id="btn-sample-search">SEARCH示例</button>
+        <button class="btn btn-primary btn-sm" id="btn-format">格式化</button>
+      </div>
+    </div>
+    <textarea id="input" placeholder="将 i人事 公式粘贴到此处，支持任意嵌套层级…&#10;快捷键：Ctrl+Enter 触发格式化"></textarea>
+    <div class="shortcut-tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> 快速格式化</div>
+  </div>
+
+  <!-- 输出区 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="label">格式化结果</span>
+      <div class="card-actions">
+        <button class="btn btn-sm" id="btn-copy">复制</button>
+        <button class="btn btn-sm" id="btn-plain">纯文本模式</button>
+      </div>
+    </div>
+    <div class="opts-bar">
+      <span class="opt-chip on" id="oc-indent" data-key="indent"><span class="dot"></span>缩进对齐</span>
+      <span class="opt-chip on" id="oc-highlight" data-key="highlight"><span class="dot"></span>语法高亮</span>
+      <span class="opt-chip on" id="oc-arr" data-key="arr"><span class="dot"></span>数组换行</span>
+      <span class="opt-chip on" id="oc-arg" data-key="arg"><span class="dot"></span>参数换行</span>
+    </div>
+    <div class="err-banner" id="err-banner">
+      <div class="err-summary" id="err-summary"></div>
+      <div id="err-list"></div>
+    </div>
+    <div id="output"><span class="placeholder">格式化结果将显示在这里</span></div>
+    <div class="stat-bar" id="stat-bar">
+      <span class="stat-item">最大嵌套层：<strong id="s-depth">-</strong></span>
+      <span class="stat-item">括号对数：<strong id="s-parens">-</strong></span>
+      <span class="stat-item">字段引用：<strong id="s-fields">-</strong></span>
+      <span class="stat-item">函数数量：<strong id="s-fns">-</strong></span>
+    </div>
+  </div>
+
+  <!-- 颜色图例 -->
+  <div class="legend-card">
+    <div class="legend-title">语法高亮图例</div>
+    <div class="legend-grid">
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:var(--c-if)">IF</span>
+        <span>IF / IFERROR / IFS</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:var(--c-and)">AND</span>
+        <span>AND / OR / NOT</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:var(--c-choose)">CH</span>
+        <span>CHOOSE / MATCH</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:var(--c-date)">DAY</span>
+        <span>DAY / MONTH / YEAR / DATE</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:var(--c-fn)">FN</span>
+        <span>其他函数（SUM / ROUND …）</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:var(--c-search)">SRC</span>
+        <span>SEARCH / FIND</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:var(--c-lookup)">VK</span>
+        <span>VLOOKUP / INDEX / LOOKUP …</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:var(--c-info)">IS</span>
+        <span>ISNUMBER / ISBLANK / ISERROR …</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:var(--c-field)">$</span>
+        <span>字段引用（表名$字段名）</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:var(--c-num)">0</span>
+        <span>数字常量</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:var(--c-str)">"A"</span>
+        <span>字符串常量</span>
+      </div>
+      <div class="legend-item" style="gap:3px">
+        <span style="font-size:13px;font-family:monospace;font-weight:600;color:var(--c-p0)">(</span>
+        <span style="font-size:13px;font-family:monospace;font-weight:600;color:var(--c-p1)">(</span>
+        <span style="font-size:13px;font-family:monospace;font-weight:600;color:var(--c-p2)">(</span>
+        <span style="font-size:13px;font-family:monospace;font-weight:600;color:var(--c-p3)">(</span>
+        <span>括号层级（4色循环）</span>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /main-col -->
+
+  <!-- 拖拽分界线 -->
+  <div class="resize-handle" id="resize-handle"></div>
+
+  <!-- 右侧逻辑说明面板 -->
+  <div class="side-col">
+    <div class="logic-panel" id="logic-panel">
+      <div class="logic-panel-hd" id="logic-panel-hd">
+        <span class="lp-title">📐 公式逻辑说明</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button class="btn btn-ai" id="btn-ai-explain" title="调用 AI 解读公式业务语义" style="display:none">🤖 AI 解读</button>
+          <button class="btn btn-ai-cfg" id="btn-ai-key" title="配置 AI 接口">⚙️</button>
+          <span class="lp-toggle">▼</span>
+        </div>
+      </div>
+      <div class="logic-panel-body" id="logic-panel-body">
+        <div class="logic-empty" id="logic-empty">格式化后自动生成逻辑说明</div>
+        <div class="logic-tree" id="logic-tree" style="display:none"></div>
+        <!-- AI 解读区 -->
+        <div class="ai-section" id="ai-section" style="display:none">
+          <div class="ai-section-hd">
+            <span class="ai-section-title">🤖 AI 解读</span>
+            <button class="ai-stop-btn" id="ai-stop-btn" style="display:none">⏹ 停止</button>
+          </div>
+          <div class="ai-content" id="ai-content"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /side-col -->
+
+  <!-- AI 配置弹窗 -->
+  <div class="ai-modal-mask" id="ai-modal-mask" style="display:none">
+    <div class="ai-modal">
+      <div class="ai-modal-title">🤖 AI 接口配置</div>
+      <div class="ai-modal-desc">配置仅存储在本地浏览器，不上传服务器。</div>
+
+      <!-- 快捷预设 -->
+      <div class="ai-presets-label">常用服务商（点击快速填入）</div>
+      <div class="ai-presets" id="ai-presets">
+        <button class="ai-preset-btn" data-url="https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions" data-model="qwen-turbo">通义千问</button>
+        <button class="ai-preset-btn" data-url="https://api.deepseek.com/chat/completions" data-model="deepseek-chat">DeepSeek</button>
+        <button class="ai-preset-btn" data-url="https://api.openai.com/v1/chat/completions" data-model="gpt-4o-mini">OpenAI</button>
+        <button class="ai-preset-btn" data-url="https://api.moonshot.cn/v1/chat/completions" data-model="moonshot-v1-8k">月之暗面</button>
+        <button class="ai-preset-btn" data-url="https://api.lingyiwanwu.com/v1/chat/completions" data-model="yi-lightning">零一万物</button>
+        <button class="ai-preset-btn" data-url="https://open.bigmodel.cn/api/paas/v4/chat/completions" data-model="glm-4-flash">智谱 GLM</button>
+      </div>
+
+      <!-- 端点 + 模型 -->
+      <div class="ai-form-row">
+        <label class="ai-form-label">API 端点</label>
+        <input class="ai-modal-input" id="ai-url-input" type="text" placeholder="https://api.example.com/v1/chat/completions" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="ai-form-row">
+        <label class="ai-form-label">模型名称</label>
+        <input class="ai-modal-input" id="ai-model-input" type="text" placeholder="如 gpt-4o-mini / qwen-turbo / deepseek-chat" autocomplete="off">
+      </div>
+      <div class="ai-form-row">
+        <label class="ai-form-label">
+          API Key
+          <span class="ai-key-eye" id="ai-key-eye" title="显示/隐藏">👁</span>
+        </label>
+        <input class="ai-modal-input" id="ai-key-input" type="password" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+      </div>
+
+      <!-- 记住配置开关 -->
+      <div class="ai-remember-row">
+        <label class="ai-toggle-label" id="ai-remember-label">
+          <span class="ai-toggle-track" id="ai-remember-track">
+            <span class="ai-toggle-thumb"></span>
+          </span>
+          <span class="ai-remember-text" id="ai-remember-text">记住配置（存入浏览器本地缓存）</span>
+        </label>
+        <span class="ai-remember-hint">仅存在您自己浏览器的 localStorage，不会上传</span>
+      </div>
+
+      <div class="ai-modal-row">
+        <button class="btn btn-danger-ghost" id="ai-key-clear" title="清除已保存的配置">清除记录</button>
+        <div style="flex:1"></div>
+        <button class="btn" id="ai-key-cancel">取消</button>
+        <button class="btn btn-primary" id="ai-key-save">保存</button>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /page-body -->
+
+</div><!-- /wrap -->
+
+<script>
+// ─── 常量 ────────────────────────────────────────────────────
+const SAMPLE = 'if(AND(员工基本信息$员工类型 = "全职A",员工基本信息$员工类型 = "全职B"),CHOOSE(MATCH(1=1,{(MONTH(员工基本信息$转正日期)-薪资所属月)<0,(MONTH(员工基本信息$转正日期)-薪资所属月)=0,(MONTH(员工基本信息$转正日期)-薪资所属月)>0}),{(员工薪资$试用期岗位工资/(考勤$法定工作日天数*8))*(考勤$湖北实际计薪正班工时+考勤$湖北实际计薪正班工时+考勤$湖北年假+考勤$哺乳假+考勤$婚假+考勤$计薪产假+考勤$计薪陪产假+考勤$工伤假+考勤$丧假+考勤$产检假),((员工薪资$试用期岗位工资/DAY(薪资所属月)*(员工基本信息$转正日期-1)+员工薪资$岗位工资/DAY(薪资所属月)*(DAY(薪资所属月)-DAY(员工基本信息$转正日期)+1))/(考勤$法定工作日天数*8))*(考勤$湖北实际计薪正班工时+考勤$湖北实际计薪正班工时+考勤$湖北年假+考勤$哺乳假+考勤$婚假+考勤$计薪产假+考勤$计薪陪产假+考勤$工伤假+考勤$丧假+考勤$产检假),(员工薪资$岗位工资/(考勤$法定工作日天数*8))*(考勤$湖北实际计薪正班工时+考勤$湖北实际计薪正班工时+考勤$湖北年假+考勤$哺乳假+考勤$婚假+考勤$计薪产假+考勤$计薪陪产假+考勤$工伤假+考勤$丧假+考勤$产检假)},0),CHOOSE(MATCH(1=1,{(MONTH(员工基本信息$转正日期)-薪资所属月)<0,(MONTH(员工基本信息$转正日期)-薪资所属月)=0,(MONTH(员工基本信息$转正日期)-薪资所属月)>0}),{(员工薪资$试用期岗位工资/(考勤$法定工作日天数*8))*(考勤$湖北实际计薪正班工时+考勤$湖北实际计薪正班工时+考勤$湖北年假+考勤$哺乳假+考勤$婚假+考勤$计薪产假+考勤$计薪陪产假+考勤$工伤假+考勤$丧假+考勤$产检假),((员工薪资$试用期岗位工资/DAY(薪资所属月)*(员工基本信息$转正日期-1)+员工薪资$岗位工资/DAY(薪资所属月)*(DAY(薪资所属月)-DAY(员工基本信息$转正日期)+1))/(考勤$法定工作日天数*8))*(考勤$湖北实际计薪正班工时+考勤$湖北实际计薪正班工时+考勤$湖北年假+考勤$哺乳假+考勤$婚假+考勤$计薪产假+考勤$计薪陪产假+考勤$工伤假+考勤$丧假+考勤$产检假),(员工薪资$岗位工资/(考勤$法定工作日天数*8))*(考勤$湖北实际计薪正班工时+考勤$湖北实际计薪正班工时+考勤$湖北年假+考勤$哺乳假+考勤$婚假+考勤$计薪产假+考勤$计薪陪产假+考勤$工伤假+考勤$丧假+考勤$产检假)},0))';
+
+const SAMPLE_SEARCH = 'IF(SEARCH(员工基本信息$部门名称,"技术部")>0, "是", "否")';
+const SAMPLE_SEARCH_BAD = 'IF(SEARCH(员工基本信息$部门名称,"技术部"), "是", "否")';
+
+const FN_CLASS = {
+  IF:'t-IF', IFS:'t-IF', IFERROR:'t-IF', IF2:'t-IF',
+  AND:'t-AND', OR:'t-AND', NOT:'t-AND',
+  CHOOSE:'t-CHOOSE', MATCH:'t-MATCH', SWITCH:'t-CHOOSE',
+  DAY:'t-DATE', MONTH:'t-DATE', YEAR:'t-DATE', DATE:'t-DATE', TODAY:'t-DATE', NOW:'t-DATE', DATEDIF:'t-DATE',
+  EDATE:'t-DATE', EOMONTH:'t-DATE', WEEKDAY:'t-DATE', WEEKNUM:'t-DATE',
+  YEARFRAC:'t-DATE', NETWORKDAYS:'t-DATE', WORKDAY:'t-DATE',
+  SEARCH:'t-SEARCH', FIND:'t-SEARCH',
+  VLOOKUP:'t-LOOKUP', HLOOKUP:'t-LOOKUP', LOOKUP:'t-LOOKUP',
+  INDEX:'t-LOOKUP', INDIRECT:'t-LOOKUP', OFFSET:'t-LOOKUP',
+  ISNUMBER:'t-INFO', ISTEXT:'t-INFO', ISBLANK:'t-INFO', ISERROR:'t-INFO', ISNA:'t-INFO',
+  ISEVEN:'t-INFO', ISODD:'t-INFO', ISLOGICAL:'t-INFO', ISNONTEXT:'t-INFO', ISREF:'t-INFO',
+  ERROR_TYPE:'t-INFO', TYPE:'t-INFO',
+};
+const PAREN_CLS = ['t-p0','t-p1','t-p2','t-p3'];
+
+// ─── 函数参数签名（exact=精确 / min=最小 / max=最大 / pairs=必须成对）─
+const FN_SIG = {
+  // ── 条件/逻辑 ──
+  IF:{exact:3}, IFERROR:{exact:2}, IFS:{min:2,pairs:true},
+  AND:{min:1}, OR:{min:1}, NOT:{exact:1},
+  TRUE:{exact:0}, FALSE:{exact:0},
+  // ── 选择 ──
+  CHOOSE:{min:2}, MATCH:{min:2,max:3}, SWITCH:{min:2},
+  // ── 日期时间 ──
+  DAY:{exact:1}, MONTH:{exact:1}, YEAR:{exact:1},
+  DATE:{exact:3}, TODAY:{exact:0}, NOW:{exact:0}, DATEDIF:{exact:3},
+  EDATE:{exact:2}, EOMONTH:{exact:2}, WEEKDAY:{min:1,max:2},
+  WEEKNUM:{min:1,max:2}, YEARFRAC:{min:2,max:3},
+  NETWORKDAYS:{min:2,max:3}, WORKDAY:{min:2,max:3},
+  // ── 数学/统计 ──
+  ROUND:{min:1,max:2}, ROUNDUP:{min:1,max:2}, ROUNDDOWN:{min:1,max:2},
+  SUM:{min:1}, AVERAGE:{min:1}, MAX:{min:1}, MIN:{min:1},
+  COUNT:{min:1}, COUNTA:{min:1}, COUNTBLANK:{exact:1},
+  COUNTIF:{min:2,max:2}, COUNTIFS:{min:2,pairs:true},
+  SUMIF:{min:2,max:3}, SUMIFS:{min:3},
+  AVERAGEIF:{min:2,max:3}, AVERAGEIFS:{min:3},
+  ABS:{exact:1}, INT:{exact:1}, MOD:{exact:2}, SQRT:{exact:1},
+  CEILING:{min:1,max:2}, FLOOR:{min:1,max:2},
+  POWER:{exact:2}, PRODUCT:{min:1}, SUMPRODUCT:{min:1},
+  SIGN:{exact:1}, RAND:{exact:0}, RANDBETWEEN:{exact:2},
+  ROMAN:{min:1,max:2},
+  // ── 文本 ──
+  LEFT:{min:1,max:2}, RIGHT:{min:1,max:2}, MID:{exact:3},
+  LEN:{exact:1}, TRIM:{exact:1}, CONCATENATE:{min:1},
+  TEXT:{exact:2}, VALUE:{exact:1},
+  SEARCH:{exact:2}, FIND:{min:2,max:3},
+  REPLACE:{exact:4}, SUBSTITUTE:{min:3,max:4},
+  UPPER:{exact:1}, LOWER:{exact:1}, PROPER:{exact:1},
+  EXACT:{exact:2}, CLEAN:{exact:1}, REPT:{exact:2},
+  T:{exact:1},
+  // ── 查找/引用 ──
+  VLOOKUP:{min:3,max:4}, HLOOKUP:{min:3,max:4},
+  LOOKUP:{min:2,max:3}, INDEX:{min:2,max:4},
+  INDIRECT:{min:1,max:2}, OFFSET:{min:3,max:5},
+  // ── 信息 ──
+  ISNUMBER:{exact:1}, ISTEXT:{exact:1}, ISBLANK:{exact:1},
+  ISERROR:{exact:1}, ISNA:{exact:1},
+  ISEVEN:{exact:1}, ISODD:{exact:1}, ISLOGICAL:{exact:1},
+  ISNONTEXT:{exact:1}, ISREF:{exact:1},
+  ERROR_TYPE:{exact:1}, N:{exact:1}, TYPE:{exact:1},
+  // ── 汇总 ──
+  SUBTOTAL:{min:2},
+};
+
+// ─── 状态 ────────────────────────────────────────────────────
+const opts = { indent:true, highlight:true, arr:true, arg:true };
+let plainMode = false;
+let lastPlain = '';
+let errPositions = new Set();
+let errList = [];
+
+// ─── 括号/引号纠错验证 ────────────────────────────────────────
+function validateErrors(src) {
+  errList = [];
+  errPositions = new Set();
+  const pStack = [];   // ( positions
+  const bStack = [];   // { positions
+  let inStr = false;
+  let lastQuote = -1;
+
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (c === '"') {
+      if (inStr) { inStr = false; }
+      else { inStr = true; lastQuote = i; }
+      continue;
+    }
+    if (inStr) continue;
+    if (c === '(') pStack.push(i);
+    if (c === ')') {
+      if (pStack.length === 0) {
+        errList.push({type:'extra_rparen', msg:'多余的 ")" ，前方没有匹配的 "("', pos:i});
+        errPositions.add(i);
+      } else { pStack.pop(); }
+    }
+    if (c === '{') bStack.push(i);
+    if (c === '}') {
+      if (bStack.length === 0) {
+        errList.push({type:'extra_rbrace', msg:'多余的 "}" ，前方没有匹配的 "{"', pos:i});
+        errPositions.add(i);
+      } else { bStack.pop(); }
+    }
+  }
+  if (inStr) {
+    errList.push({type:'unclosed_quote', msg:'双引号 " 未闭合，缺少结尾的引号', pos: lastQuote >= 0 ? lastQuote : src.length - 1});
+    if (lastQuote >= 0) errPositions.add(lastQuote);
+  }
+  for (const pos of pStack) {
+    errList.push({type:'unclosed_lparen', msg:'"(" 未闭合，缺少对应的 ")"', pos});
+    errPositions.add(pos);
+  }
+  for (const pos of bStack) {
+    errList.push({type:'unclosed_lbrace', msg:'"{" 未闭合，缺少对应的 "}"', pos});
+    errPositions.add(pos);
+  }
+  return errList;
+}
+
+// ─── 错误标签映射 ────────────────────────────────────────────
+const ERR_TAG = {
+  extra_rparen:'多余右括号', extra_rbrace:'多余右花括号',
+  unclosed_lparen:'左括号未闭合', unclosed_lbrace:'左花括号未闭合',
+  unclosed_quote:'引号未闭合',
+  fn_exact_args:'参数不足', fn_min_args:'参数不足',
+  fn_max_args:'参数过多', fn_pairs:'参数不成对',
+  fn_search_no_gt0:'SEARCH缺少>0',
+  parse_error:'解析失败'
+};
+
+// ─── 取错误位置上下文 ─────────────────────────────────────────
+function errCtx(src, pos) {
+  const s = Math.max(0, pos - 20);
+  const e = Math.min(src.length, pos + 20);
+  let ctx = esc(src.slice(s, e));
+  // 标记错误位置
+  const rel = pos - s;
+  ctx = ctx.slice(0, rel) + '<mark style="background:#fed7d7;color:#c53030;padding:0 2px;border-radius:2px">' + ctx[rel] + '</mark>' + ctx.slice(rel + 1);
+  if (s > 0) ctx = '…' + ctx;
+  if (e < src.length) ctx = ctx + '…';
+  return ctx;
+}
+
+// ─── AST 遍历器 ──────────────────────────────────────────────
+function walkAST(nodes, fn) {
+  const stack = nodes.map(n => [n, 0]);
+  const MAX_WALK = 20000;
+  let tick = 0;
+  while (stack.length > 0 && ++tick < MAX_WALK) {
+    const [n, phase] = stack.pop();
+    if (phase === 0) {
+      fn(n);
+      stack.push([n, 1]); // 标记已处理
+      if (n.k === 'call') {
+        for (let i = n.args.length - 1; i >= 0; i--) {
+          for (let j = n.args[i].length - 1; j >= 0; j--) {
+            stack.push([n.args[i][j], 0]);
+          }
+        }
+      } else if (n.k === 'arr') {
+        for (let i = n.items.length - 1; i >= 0; i--) {
+          for (let j = n.items[i].length - 1; j >= 0; j--) {
+            stack.push([n.items[i][j], 0]);
+          }
+        }
+      } else if (n.k === 'grp') {
+        for (let j = n.inner.length - 1; j >= 0; j--) {
+          stack.push([n.inner[j], 0]);
+        }
+      }
+    }
+  }
+  if (tick >= MAX_WALK) {
+    // 防止无限遍历
+    return;
+  }
+}
+
+// ─── 函数参数校验 ─────────────────────────────────────────────
+function validateFunctionArgs(ast) {
+  const fnErrors = [];
+  walkAST(ast, function(node) {
+    if (node.k !== 'call') return;
+    const sig = FN_SIG[node.name.toUpperCase()];
+    if (!sig) return;  // 未知函数跳过
+    const got = node.args.length;
+    let errType = null, errMsg = '';
+
+    if (sig.exact !== undefined && got !== sig.exact) {
+      errType = 'fn_exact_args';
+      errMsg = node.name + ' 函数需要 <strong>' + sig.exact + '</strong> 个参数，当前只有 <strong>' + got + '</strong> 个';
+    }
+    if (!errType && sig.min !== undefined && got < sig.min) {
+      errType = 'fn_min_args';
+      errMsg = node.name + ' 函数至少需要 <strong>' + sig.min + '</strong> 个参数，当前只有 <strong>' + got + '</strong> 个';
+    }
+    if (!errType && sig.max !== undefined && got > sig.max) {
+      errType = 'fn_max_args';
+      errMsg = node.name + ' 函数最多接受 <strong>' + sig.max + '</strong> 个参数，当前有 <strong>' + got + '</strong> 个';
+    }
+    if (!errType && sig.pairs && got % 2 !== 0) {
+      errType = 'fn_pairs';
+      errMsg = node.name + ' 参数必须成对（条件+值），当前 <strong>' + got + '</strong> 个参数无法配对';
+    }
+
+    if (errType) {
+      const tooltip = errMsg.replace(/<[^>]+>/g, '');
+      node.fnErr = { type: errType, msg: errMsg, tooltip };
+      fnErrors.push({ type: errType, fn: node.name, msg: errMsg });
+    }
+  });
+  return fnErrors;
+}
+
+// ─── SEARCH 函数用法校验（必须 IF(SEARCH(...)>0,TRUE,FALSE)）───
+function validateSearchUsage(src) {
+  const errors = [];
+  const re = /SEARCH\s*\(/gi;
+  let m;
+  while ((m = re.exec(src)) !== null) {
+    // 排除以"SEARCH"为前缀的其他函数名
+    if (m.index > 0) {
+      const beforeCh = src.slice(Math.max(0, m.index - 10), m.index);
+      if (/[A-Za-z_]$/.test(beforeCh)) continue;
+    }
+    // 找 SEARCH( 对应的闭括号位置
+    let depth = 0;
+    let closePos = -1;
+    for (let k = m.index + 7; k < src.length; k++) {
+      if (src[k] === '(') depth++;
+      else if (src[k] === ')') {
+        if (depth === 0) { closePos = k; break; }
+        depth--;
+      }
+    }
+    if (closePos < 0) continue; // 括号不匹配，括号纠错会处理
+
+    // 检查：闭括号后是否紧跟 >0
+    const after = src.slice(closePos + 1).trimStart();
+    if (!/^>\s*0/.test(after)) {
+      errors.push({
+        type: 'fn_search_no_gt0',
+        fn: 'SEARCH',
+        msg: 'SEARCH 函数必须配合 <strong>&gt;0</strong> 进行判断<br>'
+           + '<small style="color:#999">例如：SEARCH(目标,"值")&gt;0、IF(SEARCH(目标,"值")&gt;0, 匹配, 不匹配)</small>',
+        pos: m.index,
+      });
+    }
+  }
+  return errors;
+}
+
+// ─── 工具函数 ─────────────────────────────────────────────────
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function ind(d){ return '  '.repeat(d); }
+function pc(d){ return PAREN_CLS[d % 4]; }
+function fnCls(name){ return FN_CLASS[name.toUpperCase()] || 't-FN'; }
+function wrap(cls, s){ return opts.highlight ? `<span class="${cls}">${s}</span>` : s; }
+function wrapParen(d, s){ return opts.highlight ? `<span class="${pc(d)}">${s}</span>` : s; }
+
+// ─── Tokenizer ────────────────────────────────────────────────
+function tokenize(src){
+  const toks = [];
+  let i = 0;
+  while(i < src.length){
+    // 字符串
+    if(src[i] === '"'){
+      let j = i+1;
+      while(j < src.length && src[j] !== '"') j++;
+      const hasQuoteErr = errPositions.has(i) || (j >= src.length);
+      toks.push({t:'str', v: src.slice(i, j+1), error: hasQuoteErr});
+      i = j+1; continue;
+    }
+    // 函数名（后跟(）
+    const fnM = src.slice(i).match(/^([A-Za-z_][A-Za-z0-9_]*)(?=\s*\()/);
+    if(fnM){ toks.push({t:'fn', v: fnM[1]}); i += fnM[1].length; continue; }
+    // 字段引用（表名$字段名，中文+英文混合）
+    const fldM = src.slice(i).match(/^[\u4e00-\u9fa5A-Za-z_][\u4e00-\u9fa5A-Za-z0-9_]*\$[\u4e00-\u9fa5A-Za-z0-9_]+/);
+    if(fldM){ toks.push({t:'field', v: fldM[0]}); i += fldM[0].length; continue; }
+    // 数字
+    const numM = src.slice(i).match(/^-?\d+(\.\d+)?/);
+    if(numM){ toks.push({t:'num', v: numM[0]}); i += numM[0].length; continue; }
+    // 普通词（含中文）
+    const wdM = src.slice(i).match(/^[\u4e00-\u9fa5A-Za-z_][\u4e00-\u9fa5A-Za-z0-9_]*/);
+    if(wdM){ toks.push({t:'word', v: wdM[0]}); i += wdM[0].length; continue; }
+    // 空白跳过
+    if(/\s/.test(src[i])){ i++; continue; }
+    // 单字符（含括号，标记错误位置）
+    const ch = src[i];
+    const isErrBracket = (ch === '(' || ch === ')' || ch === '{' || ch === '}') && errPositions.has(i);
+    toks.push({t:'ch', v: ch, error: isErrBracket});
+    i++;
+  }
+  return toks;
+}
+
+// ─── Parser → AST ────────────────────────────────────────────
+function parse(tokens){
+  let pos = 0;
+  function peek(){ return tokens[pos]; }
+  function eat(){ return tokens[pos++]; }
+
+  function parseExpr(){
+    const parts = [];
+    let maxIter = tokens.length + 100;
+    while(pos < tokens.length && --maxIter > 0){
+      const tk = peek();
+      if(tk.v === ')' || tk.v === ',' || tk.v === '}') break;
+      if(tk.t === 'fn'){
+        const fnTok = eat();
+        if(pos < tokens.length && peek().v === '('){
+          const errOpen = peek().error || false;
+          eat(); // consume (
+          const result = parseList(')');
+          parts.push({k:'call', name: fnTok.v, args: result.items, errOpen, errClose: result.closeErr});
+        } else {
+          parts.push({k:'tok', tk: fnTok});
+        }
+        continue;
+      }
+      if(tk.v === '{'){
+        const errOpen = tk.error || false;
+        eat();
+        const result = parseList('}');
+        parts.push({k:'arr', items: result.items, errOpen, errClose: result.closeErr});
+        continue;
+      }
+      if(tk.v === '('){
+        const errOpen = tk.error || false;
+        eat();
+        const result = parseList(')');
+        parts.push({k:'grp', inner: result.items, errOpen, errClose: result.closeErr});
+        continue;
+      }
+      eat();
+      parts.push({k:'tok', tk});
+    }
+    return parts;
+  }
+
+  function parseList(close){
+    const items = [];
+    let closeErr = false;
+    let stallCount = 0;
+    const MAX_STALL = 5;
+    while(pos < tokens.length){
+      if(peek().v === close){
+        closeErr = peek().error || false;
+        eat();
+        return {items, closeErr};
+      }
+      const before = pos;
+      items.push(parseExpr());
+      // 死循环保护：parseExpr 没推进 pos → 强制跳过当前 token
+      if (pos === before) {
+        stallCount++;
+        if (stallCount > MAX_STALL) return {items, closeErr};
+        eat(); // 跳过导致卡死的 token
+        continue;
+      }
+      stallCount = 0;
+      if(pos < tokens.length && peek().v === ','){
+        eat();
+      } else if(pos < tokens.length && peek().v === close){
+        closeErr = peek().error || false;
+        eat();
+        return {items, closeErr};
+      }
+    }
+    return {items, closeErr};
+  }
+
+  return parseExpr();
+}
+
+// ─── Renderer ────────────────────────────────────────────────
+const MAX_RENDER_DEPTH = 60;
+function renderNodes(nodes, depth){
+  if (depth > MAX_RENDER_DEPTH) return '<span class="t-err-brk">…（嵌套过深，已截断）</span>';
+  return nodes.map(n => renderNode(n, depth)).join('');
+}
+
+function renderNode(n, depth){
+  if (depth > MAX_RENDER_DEPTH) return '<span class="t-err-brk">…</span>';
+  if(n.k === 'tok') return renderTok(n.tk);
+  if(n.k === 'call') return renderCall(n, depth);
+  if(n.k === 'arr') return renderArr(n, depth);
+  if(n.k === 'grp'){
+    const op = n.errOpen ? '<span class="t-err-brk">(</span>' : wrapParen(depth,'(');
+    const cp = n.errClose ? '<span class="t-err-brk">)</span>' : wrapParen(depth,')');
+    return op + renderList(n.inner, depth+1) + cp;
+  }
+  return '';
+}
+
+function renderTok(tk){
+  const v = esc(tk.v);
+  if(tk.error && tk.t === 'str') return '<span class="t-err-str">' + v + '</span>';
+  if(tk.error && tk.t === 'ch') return '<span class="t-err-brk">' + esc(tk.v) + '</span>';
+  if(tk.t === 'field') return wrap('t-field', v);
+  if(tk.t === 'num') return wrap('t-num', v);
+  if(tk.t === 'str') return wrap('t-str', v);
+  if(tk.t === 'word') return v;
+  if(tk.t === 'ch' && /[+\-*/=<>!]/.test(tk.v)) return wrap('t-op', v);
+  return v;
+}
+
+function renderList(args, depth){
+  return args.map(a => renderNodes(a, depth)).join(', ');
+}
+
+function needsExpand(name, argLen){
+  if(!opts.indent) return false;
+  const up = name.toUpperCase();
+  return up==='CHOOSE' || up==='MATCH' || up==='IF' || up==='IFS' || up==='IFERROR' || up==='IF2' || argLen > 2;
+}
+
+function renderCall(n, depth){
+  const name = n.name;
+  const nameCls = n.fnErr ? (fnCls(name) + ' fn-name-warn') : fnCls(name);
+  const fh = wrap(nameCls, esc(name));
+  const op = n.errOpen ? '<span class="t-err-brk">(</span>' : wrapParen(depth, '(');
+  const cp = n.errClose ? '<span class="t-err-brk">)</span>' : wrapParen(depth, ')');
+
+  if(!needsExpand(name, n.args.length)){
+    return fh + op + renderList(n.args, depth+1) + cp + renderFnErrBadge(n);
+  }
+
+  const d1 = depth + 1;
+  const parts = n.args.map(a => ind(d1) + renderArgExpanded(a, d1));
+  return fh + op + '\n' + parts.join(',\n') + '\n' + ind(depth) + cp + renderFnErrBadge(n);
+}
+
+// ─── 内联错误标记 ──────────────────────────────────────────
+function renderFnErrBadge(n) {
+  if (!n.fnErr) return '';
+  const tip = esc(n.fnErr.tooltip);
+  // 全部用内联样式 + title 属性，不依赖 CSS ::after（i人事沙盒可能屏蔽伪元素）
+  var badgeStyle = 'display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;background:#fefcbf;color:#975a16;border-radius:3px;font-size:11px;font-weight:700;margin-left:3px;cursor:help;vertical-align:middle';
+  var badge = '<span class="fn-err-badge" title="' + tip + '" style="' + badgeStyle + '">!</span>';
+  if (n.fnErr.type === 'fn_exact_args' || n.fnErr.type === 'fn_min_args') {
+    var arrStyle = 'color:#d69e2e;font-weight:700;font-size:11px;cursor:help;vertical-align:middle;display:inline-block;margin-left:1px';
+    badge += ' <span title="' + tip + '" style="' + arrStyle + '">\u25C0</span>';
+  }
+  return badge;
+}
+
+function renderArgExpanded(arg, depth){
+  if(arg.length === 0) return '';
+  if(arg.length === 1){
+    const n = arg[0];
+    if(n.k === 'call') return renderCall(n, depth);
+    if(n.k === 'arr') return renderArr(n, depth);
+    if(n.k === 'grp'){
+      return wrapParen(depth,'(') + renderList(n.inner, depth+1) + wrapParen(depth,')');
+    }
+  }
+  return renderNodes(arg, depth);
+}
+
+function renderArr(n, depth){
+  const op = n.errOpen ? '<span class="t-err-brk">{</span>' : wrapParen(depth, '{');
+  const cp = n.errClose ? '<span class="t-err-brk">}</span>' : wrapParen(depth, '}');
+  if(!opts.arr || n.items.length <= 2){
+    return op + renderList(n.items, depth+1) + cp;
+  }
+  const d1 = depth + 1;
+  const items = n.items.map(a => ind(d1) + renderArgExpanded(a, d1));
+  return op + '\n' + items.join(',\n') + '\n' + ind(depth) + cp;
+}
+
+// ─── Plain text (无高亮) ──────────────────────────────────────
+function plainNodes(nodes, depth){
+  if (depth > MAX_RENDER_DEPTH) return '…（嵌套过深，已截断）';
+  return nodes.map(n => plainNode(n, depth)).join('');
+}
+function plainNode(n, depth){
+  if(n.k === 'tok') return n.tk.v;
+  if(n.k === 'call') return plainCall(n, depth);
+  if(n.k === 'arr') return plainArr(n, depth);
+  if(n.k === 'grp') return '(' + plainNodes(n.inner.flat(), depth+1) + ')';
+  return '';
+}
+function plainCall(n, depth){
+  if(!needsExpand(n.name, n.args.length)){
+    return n.name + '(' + n.args.map(a => plainNodes(a, depth+1)).join(', ') + ')';
+  }
+  const d1 = depth+1;
+  const parts = n.args.map(a => ind(d1) + plainNodes(a, d1));
+  return n.name + '(\n' + parts.join(',\n') + '\n' + ind(depth) + ')';
+}
+function plainArr(n, depth){
+  if(!opts.arr || n.items.length <= 2){
+    return '{' + n.items.map(a => plainNodes(a, depth+1)).join(', ') + '}';
+  }
+  const d1 = depth+1;
+  const items = n.items.map(a => ind(d1) + plainNodes(a, d1));
+  return '{\n' + items.join(',\n') + '\n' + ind(depth) + '}';
+}
+
+// ─── 统计 ────────────────────────────────────────────────────
+function calcStats(src){
+  const fields = (src.match(/[\u4e00-\u9fa5A-Za-z_][\u4e00-\u9fa5A-Za-z0-9_]*\$[\u4e00-\u9fa5A-Za-z0-9_]+/g)||[]).length;
+  const fns = (src.match(/[A-Za-z_][A-Za-z0-9_]*(?=\s*\()/g)||[]).length;
+  let dep=0, maxDep=0, parens=0;
+  for(const c of src){
+    if(c==='('||c==='{'){dep++;if(dep>maxDep)maxDep=dep;if(c==='(')parens++;}
+    else if(c===')'||c==='}'){dep--;}
+  }
+  return {maxDep, parens, fields, fns};
+}
+
+// ─── 纯 Token 渲染（解析失败时降级） ────────────────────────
+function renderRawTokens(toks) {
+  let out = '';
+  for (const tk of toks) {
+    const v = esc(tk.v);
+    if (tk.error) {
+      out += '<span class="t-err-brk">' + v + '</span>';
+    } else if (tk.t === 'field') { out += wrap('t-field', v); }
+    else if (tk.t === 'num') { out += wrap('t-num', v); }
+    else if (tk.t === 'str') { out += wrap('t-str', v); }
+    else if (tk.t === 'fn') { out += wrap(fnCls(tk.v), v); }
+    else { out += v; }
+  }
+  return out || '<span class="placeholder">（无法渲染）</span>';
+}
+
+// ─── 渲染错误面板 ────────────────────────────────────────────
+function renderErrorBanner(allErrs, src) {
+  const errBanner = document.getElementById('err-banner');
+  const errSummary = document.getElementById('err-summary');
+  const errListEl = document.getElementById('err-list');
+  if (allErrs.length === 0) {
+    errBanner.classList.remove('show');
+    return;
+  }
+  const brkErr = allErrs.filter(e => !e.type.startsWith('fn_'));
+  const fnErr  = allErrs.filter(e => e.type.startsWith('fn_'));
+  const parts = [];
+  if (brkErr.length) parts.push('<strong>' + brkErr.length + '</strong> 处括号/引号问题');
+  if (fnErr.length)  parts.push('<strong>' + fnErr.length + '</strong> 处函数参数问题');
+  errSummary.innerHTML = '⚠️ 检测到 ' + parts.join('，');
+  errListEl.innerHTML = allErrs.map(e => {
+    const isFn = e.type.startsWith('fn_');
+    const tagCls = isFn ? 'err-tag-fn' : 'err-tag';
+    const tag = ERR_TAG[e.type] || e.type;
+    const ctx = isFn ? e.msg : errCtx(src, e.pos);
+    return '<div class="err-item"><span class="' + tagCls + '">' + tag + '</span><span class="err-ctx">' + ctx + '</span></div>';
+  }).join('');
+  errBanner.classList.add('show');
+}
+
+// ─── 主格式化 ────────────────────────────────────────────────
+function doFormat(){
+  const raw = document.getElementById('input').value.trim();
+  const outEl = document.getElementById('output');
+  const statBar = document.getElementById('stat-bar');
+
+  if(!raw){
+    outEl.innerHTML = '<span class="placeholder">格式化结果将显示在这里</span>';
+    statBar.classList.remove('show');
+    document.getElementById('err-banner').classList.remove('show');
+    errPositions = new Set();
+    errList = [];
+    return;
+  }
+
+  const clean = raw.replace(/[\s\n\r]+/g, ' ');
+
+  // 1. 括号/引号验证
+  const bracketErrors = validateErrors(clean);  // 也更新 errPositions / errList
+  let allErrors = [...bracketErrors];
+
+  try{
+    const toks = tokenize(clean);
+    const ast = parse(toks);
+
+    // 2. 函数参数校验（解析成功后才能跑）
+    const fnErrors = validateFunctionArgs(ast);
+    // 2b. SEARCH 用法校验
+    const searchErrors = validateSearchUsage(clean);
+    allErrors = [...bracketErrors, ...fnErrors, ...searchErrors];
+
+    // 3. 显示错误面板
+    renderErrorBanner(allErrors, clean);
+
+    lastPlain = plainNodes(ast, 0);
+    if(plainMode){
+      outEl.textContent = lastPlain;
+    } else {
+      const html = renderNodes(ast, 0);
+      outEl.innerHTML = html || '<span class="placeholder">（解析结果为空）</span>';
+    }
+    const stats = calcStats(clean);
+    statBar.classList.add('show');
+    document.getElementById('s-depth').textContent = stats.maxDep;
+    document.getElementById('s-parens').textContent = stats.parens;
+    document.getElementById('s-fields').textContent = stats.fields;
+    document.getElementById('s-fns').textContent = stats.fns;
+    // 逻辑说明面板
+    renderLogicPanel(ast, stats);
+    if (window._aiUpdateBtn) window._aiUpdateBtn(true);
+  } catch(e){
+    // 解析失败：括号 + SEARCH 校验仍然有效，降级 token 渲染
+    const searchErrors = validateSearchUsage(clean);
+    allErrors = [...bracketErrors, ...searchErrors];
+    if (e instanceof RangeError && e.message.includes('call stack')) {
+      allErrors.push({type:'parse_error', msg:'公式嵌套层级过深，已截断显示。请检查括号是否匹配'});
+    } else {
+      allErrors.push({type:'parse_error', msg:'公式解析失败：' + esc(e.message)});
+    }
+    renderErrorBanner(allErrors, clean);
+    if(plainMode){
+      outEl.textContent = clean;
+    } else {
+      const toks = tokenize(clean);
+      outEl.innerHTML = renderRawTokens(toks);
+    }
+    statBar.classList.remove('show');
+    renderLogicPanel(null, null);  // 解析失败时清空面板
+    if (window._aiUpdateBtn) window._aiUpdateBtn(false);
+  }
+}
+
+// ─── 事件绑定 ────────────────────────────────────────────────
+document.getElementById('btn-format').addEventListener('click', doFormat);
+
+document.getElementById('btn-clear').addEventListener('click', function(){
+  document.getElementById('input').value = '';
+  document.getElementById('output').innerHTML = '<span class="placeholder">格式化结果将显示在这里</span>';
+  document.getElementById('stat-bar').classList.remove('show');
+  document.getElementById('err-banner').classList.remove('show');
+  errPositions = new Set();
+  errList = [];
+});
+
+document.getElementById('btn-sample').addEventListener('click', function(){
+  document.getElementById('input').value = SAMPLE;
+  doFormat();
+});
+
+document.getElementById('btn-sample-search').addEventListener('click', function(){
+  document.getElementById('input').value = SAMPLE_SEARCH_BAD;
+  doFormat();
+});
+
+document.getElementById('btn-copy').addEventListener('click', function(){
+  const text = lastPlain || document.getElementById('output').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('btn-copy');
+    btn.textContent = '已复制 ✓';
+    setTimeout(() => btn.textContent = '复制', 1600);
+  }).catch(() => {
+    const btn = document.getElementById('btn-copy');
+    btn.textContent = '复制失败';
+    setTimeout(() => btn.textContent = '复制', 1600);
+  });
+});
+
+document.getElementById('btn-plain').addEventListener('click', function(){
+  plainMode = !plainMode;
+  this.textContent = plainMode ? '高亮模式' : '纯文本模式';
+  if(lastPlain){
+    if(plainMode){ document.getElementById('output').textContent = lastPlain; }
+    else { doFormat(); }
+  }
+});
+
+document.querySelectorAll('.opt-chip').forEach(chip => {
+  chip.addEventListener('click', function(){
+    const key = this.dataset.key;
+    opts[key] = !opts[key];
+    this.classList.toggle('on', opts[key]);
+    if(lastPlain) doFormat();
+  });
+});
+
+document.getElementById('input').addEventListener('keydown', function(e){
+  if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+    e.preventDefault();
+    doFormat();
+  }
+});
+
+// ─── 逻辑说明面板折叠 ───────────────────────────────────────
+document.getElementById('logic-panel-hd').addEventListener('click', function(){
+  document.getElementById('logic-panel').classList.toggle('collapsed');
+});
+
+// ─── 公式逻辑分析器 ──────────────────────────────────────────
+// 将 AST 节点转化为中文逻辑说明树（HTML 字符串）
+
+function fnTypeChip(name) {
+  var up = name.toUpperCase();
+  if (up==='IF'||up==='IFS'||up==='IFERROR'||up==='IF2') return ['lt-chip-if', 'IF条件'];
+  if (up==='AND') return ['lt-chip-and', 'AND 全部为真'];
+  if (up==='OR')  return ['lt-chip-and', 'OR 任一为真'];
+  if (up==='NOT') return ['lt-chip-and', 'NOT 取反'];
+  if (up==='CHOOSE'||up==='MATCH') return ['lt-chip-fn', '多路选择'];
+  if (up==='SEARCH'||up==='FIND') return ['lt-chip-srch', '文本查找'];
+  if (up==='VLOOKUP'||up==='HLOOKUP'||up==='INDEX'||up==='LOOKUP'||up==='XLOOKUP') return ['lt-chip-lkp', '数据查找'];
+  if (['DAY','MONTH','YEAR','DATE','TODAY','NOW','DATEDIF','EDATE','EOMONTH','WEEKDAY','WEEKNUM','YEARFRAC','NETWORKDAYS','WORKDAY'].indexOf(up)>=0) return ['lt-chip-date', '日期函数'];
+  return ['lt-chip-fn', '函数'];
+}
+
+function shortText(node) {
+  // 取 AST 节点的简短文本描述（最多 30 字）
+  if (!node) return '';
+  if (node.k === 'tok') {
+    var v = node.tk.v;
+    if (node.tk.type === 'field') return '<em>' + esc(v) + '</em>';
+    if (node.tk.type === 'str')   return '<em>"' + esc(v.replace(/^"|"$/g,'')) + '"</em>';
+    if (node.tk.type === 'num')   return '<em>' + esc(v) + '</em>';
+    return esc(v);
+  }
+  if (node.k === 'call') return '<em>' + esc(node.name) + '(…)</em>';
+  if (node.k === 'arr') {
+    // 展示数组的前几个元素
+    var items = node.items || [];
+    var preview = items.slice(0, 4).map(function(item){ return argToText(item); }).join('，');
+    if (items.length > 4) preview += '…';
+    return '{' + preview + '}';
+  }
+  if (node.k === 'grp')  return '分组(…)';
+  return '';
+}
+
+function argToText(nodes) {
+  // 将一个参数的 node 列表拼成简短可读文本（最多 40 个字符）
+  if (!nodes || nodes.length === 0) return '（空）';
+  var parts = nodes.map(shortText).join('');
+  // 去掉 HTML 标签算长度
+  var plain = parts.replace(/<[^>]+>/g, '');
+  if (plain.length > 36) {
+    parts = parts.slice(0, 60) + '…';
+  }
+  return parts;
+}
+
+// ─── 条件语义识别 ─────────────────────────────────────────────
+// 将 AST 节点数组转为纯文本（用于语义分析，保留字段名）
+
+function nodesToPlain(nodes) {
+  if (!nodes || nodes.length === 0) return '';
+  var parts = [];
+  for (var i = 0; i < nodes.length; i++) {
+    var n = nodes[i];
+    if (n.k === 'tok') {
+      parts.push(n.tk.v);
+    } else if (n.k === 'call') {
+      var rawArgs = '';
+      if (n.args && n.args[0]) rawArgs = nodesToPlain(n.args[0]);
+      parts.push(n.name + '(' + rawArgs + ')');
+    } else if (n.k === 'grp') {
+      parts.push('(' + nodesToPlain(n.inner || []) + ')');
+    } else if (n.k === 'arr') {
+      parts.push('{…}');
+    }
+  }
+  return parts.join('');
+}
+
+// 分析单个条件节点的业务含义（输入 nodes 数组，输出中文描述或 null）
+function analyzeBizMeaning(nodes) {
+  if (!nodes || nodes.length === 0) return null;
+  // 处理括号分组 grp
+  if (nodes.length === 1 && nodes[0].k === 'grp' && nodes[0].inner) {
+    return analyzeBizMeaning(nodes[0].inner);
+  }
+  if (nodes.length < 3 || nodes[1].k !== 'tok') return null;
+  var left = nodes[0];
+  var op   = nodes[1].tk.v;
+  var fn   = left.k === 'call' ? left.name.toUpperCase() : '';
+  // func(X) = func(Y) → 同年/同月/同日
+  if (nodes[2] && nodes[2].k === 'call' && nodes[2].name.toUpperCase() === fn) {
+    var a1 = left.args && left.args[0] ? nodesToPlain(left.args[0]) : '…';
+    var a2 = nodes[2].args && nodes[2].args[0] ? nodesToPlain(nodes[2].args[0]) : '…';
+    if (op === '=' && fn === 'YEAR')   return { m: '「' + a1 + '」与「' + a2 + '」<em>同年</em>', em: '📅', fields: [a1, a2], type: 'year' };
+    if (op === '=' && fn === 'MONTH')  return { m: '「' + a1 + '」与「' + a2 + '」<em>同月</em>', em: '📆', fields: [a1, a2], type: 'month' };
+    if (op === '=' && fn === 'DAY')     return { m: '「' + a1 + '」与「' + a2 + '」<em>同日</em>', em: '📅', fields: [a1, a2], type: 'day' };
+  }
+  // func(X) op 值 → 一般比较
+  if (nodes[2] && nodes[2].k === 'tok' && left.k === 'call') {
+    var a1 = left.args && left.args[0] ? nodesToPlain(left.args[0]) : '…';
+    var v2 = nodes[2].tk.v;
+    if (op === '=')  return { m: '「' + a1 + '」= ' + v2, em: '↔', type: 'eq' };
+    if (op === '>')  return { m: '「' + a1 + '」> ' + v2, em: '>', type: 'gt' };
+    if (op === '<')  return { m: '「' + a1 + '」< ' + v2, em: '<', type: 'lt' };
+    if (op === '>=') return { m: '「' + a1 + '」≥ ' + v2, em: '≥', type: 'gte' };
+    if (op === '<=') return { m: '「' + a1 + '」≤ ' + v2, em: '≤', type: 'lte' };
+    if (op === '<>') return { m: '「' + a1 + '」≠ ' + v2, em: '≠', type: 'neq' };
+  }
+  return null;
+}
+
+// 分析 AND 多个条件组合的业务含义（如 year+month → 周年月判断）
+function analyzeAndComboMeaning(args) {
+  if (!args || args.length < 2) return null;
+  var hasY = null, hasM = null;
+  for (var i = 0; i < args.length; i++) {
+    var r = analyzeBizMeaning(args[i] || []);
+    if (r && r.type === 'year')  hasY = r;
+    if (r && r.type === 'month') hasM = r;
+  }
+  if (hasY && hasM &&
+      ((hasY.fields[0] === hasM.fields[0] && hasY.fields[1] === hasM.fields[1]) ||
+       (hasY.fields[0] === hasM.fields[1] && hasY.fields[1] === hasM.fields[0]))) {
+    return { m: '两者结合 → 「' + hasY.fields[1] + '」与「' + hasY.fields[0] + '」<strong>同年且同月</strong>（判断入职周年月）', em: '🎂' };
+  }
+  return null;
+}
+
+function buildLogicHTML(node, depth) {
+  if (depth > 12) return '<div class="lt-more">…（层级过深，省略）</div>';
+  var html = '';
+  var up = (node.k === 'call') ? node.name.toUpperCase() : '';
+  var pad = depth > 0 ? '' : '';  // 缩进由 branch 容器负责
+
+  if (node.k === 'call' && (up==='IF'||up==='IF2')) {
+    var args = node.args || [];
+    var condNodes = args[0] || [];
+    var trueNodes = args[1] || [];
+    var falseNodes= args[2] || [];
+
+    html += '<div class="lt-row"><span class="lt-chip lt-chip-if">IF</span><span class="lt-text">判断：' + argToText(condNodes) + '</span></div>';
+
+    // 条件如果是 AND/OR/SEARCH 等，递归展开
+    if (condNodes.length === 1 && condNodes[0].k === 'call') {
+      html += '<div class="lt-branch-cond">';
+      html += buildLogicHTML(condNodes[0], depth+1);
+      html += '</div>';
+    }
+
+    // 真值分支
+    html += '<div class="lt-label">✅ 为真 →</div>';
+    html += '<div class="lt-branch-true">';
+    if (trueNodes.length === 1 && trueNodes[0].k === 'call') {
+      html += buildLogicHTML(trueNodes[0], depth+1);
+    } else {
+      html += '<div class="lt-row"><span class="lt-chip lt-chip-true">返回</span><span class="lt-text">' + argToText(trueNodes) + '</span></div>';
+    }
+    html += '</div>';
+
+    // 假值分支
+    if (falseNodes.length > 0) {
+      html += '<div class="lt-label">❌ 为假 →</div>';
+      html += '<div class="lt-branch-false">';
+      if (falseNodes.length === 1 && falseNodes[0].k === 'call') {
+        html += buildLogicHTML(falseNodes[0], depth+1);
+      } else {
+        html += '<div class="lt-row"><span class="lt-chip lt-chip-false">返回</span><span class="lt-text">' + argToText(falseNodes) + '</span></div>';
+      }
+      html += '</div>';
+    } else {
+      html += '<div class="lt-label">❌ 为假 → （未填写）</div>';
+    }
+
+  } else if (node.k === 'call' && up==='IFERROR') {
+    var args = node.args || [];
+    html += '<div class="lt-row"><span class="lt-chip lt-chip-if">IFERROR</span><span class="lt-text">执行：' + argToText(args[0]||[]) + '</span></div>';
+    html += '<div class="lt-label">⚠️ 出错时 →</div>';
+    html += '<div class="lt-branch-false"><div class="lt-row"><span class="lt-chip lt-chip-false">返回</span><span class="lt-text">' + argToText(args[1]||[]) + '</span></div></div>';
+
+  } else if (node.k === 'call' && (up==='AND'||up==='OR')) {
+    var label = up==='AND' ? '全部满足' : '任一满足';
+    var chipCls = 'lt-chip-and';
+    html += '<div class="lt-row"><span class="lt-chip ' + chipCls + '">' + up + '</span><span class="lt-text">' + label + '以下条件：</span></div>';
+    var args = node.args || [];
+    // 尝试识别 AND 组合业务含义（如 同年+同月 → 周年判断）
+    if (up==='AND') {
+      var andCombo = analyzeAndComboMeaning(args);
+      if (andCombo) {
+        html += '<div class="lt-meaning"><span class="lt-meaning-label">' + andCombo.em + ' 含义</span><span class="lt-meaning-text">' + andCombo.m + '</span></div>';
+      }
+    }
+    var shown = Math.min(args.length, 5);
+    for (var i = 0; i < shown; i++) {
+      html += '<div class="lt-branch-arg">';
+      if (args[i].length === 1 && args[i][0].k === 'call') {
+        html += buildLogicHTML(args[i][0], depth+1);
+      } else {
+        var condText = argToText(args[i]);
+        html += '<div class="lt-row"><span class="lt-chip lt-chip-cond">条件'+(i+1)+'</span><span class="lt-text">' + condText + '</span></div>';
+        // 尝试识别单个条件的业务含义
+        var bizM = analyzeBizMeaning(args[i]);
+        if (bizM) {
+          html += '<div style="padding-left:24px;font-size:11px;color:#6b7280;padding-top:2px">' + bizM.em + ' ' + bizM.m + '</div>';
+        }
+      }
+      html += '</div>';
+    }
+    if (args.length > 5) html += '<div class="lt-more">…还有 '+(args.length-5)+' 个条件</div>';
+
+  } else if (node.k === 'call' && (up==='SEARCH'||up==='FIND')) {
+    var args = node.args || [];
+    html += '<div class="lt-row"><span class="lt-chip lt-chip-srch">SEARCH</span><span class="lt-text">在 ' + argToText(args[0]||[]) + ' 中查找 ' + argToText(args[1]||[]) + '</span></div>';
+
+  } else if (node.k === 'call' && up==='CHOOSE') {
+    var args = node.args || [];
+    var idxArg = args[0] || [];
+
+    // 判断模式：args[1] 是否为数组字面量 {A,B,C}
+    var isArrMode = (args[1] && args[1].length === 1 && args[1][0].k === 'arr');
+    var defaultArg = null;
+
+    if (isArrMode) {
+      // 数组模式：CHOOSE(序号, {A,B,C}, 默认值?)
+      if (args.length >= 3) defaultArg = args[2];
+    }
+
+    html += '<div class="lt-row"><span class="lt-chip lt-chip-fn">CHOOSE</span><span class="lt-text">根据<em>序号</em>从选项列表中选取对应值</span></div>';
+
+    // ── 序号索引 ──
+    html += '<div class="lt-branch-arg">';
+    html += '<div class="lt-label">🎯 序号索引 — 决定选取第几个选项</div>';
+    if (idxArg.length === 1 && idxArg[0].k === 'call') {
+      var idxFnName = idxArg[0].name.toUpperCase();
+      if (idxFnName === 'MATCH') {
+        html += '<div class="lt-row" style="padding:4px 0"><span class="lt-chip lt-chip-fn">来源→MATCH</span><span class="lt-text">由 MATCH 查找结果动态决定选取哪个选项</span></div>';
+      }
+      html += buildLogicHTML(idxArg[0], depth+1);
+    } else {
+      var idxText = argToText(idxArg);
+      html += '<div class="lt-row"><span class="lt-chip lt-chip-cond">序号=' + idxText + '</span><span class="lt-text">选取第 <em>' + idxText + '</em> 个选项</span></div>';
+    }
+    html += '</div>';
+
+    // ── 选项列表 ──
+    if (isArrMode) {
+      // 展开数组内的每个元素
+      var arrItems = args[1][0].items || [];
+      var arrShown = Math.min(arrItems.length, 8);
+      html += '<div class="lt-branch-arg">';
+      html += '<div class="lt-label">📦 选项列表 — 共 <em>' + arrItems.length + '</em> 个</div>';
+      for (var ai = 0; ai < arrShown; ai++) {
+        var itemNodes = arrItems[ai];
+        html += '<div class="lt-row">';
+        html += '<span class="lt-chip lt-chip-cond" style="min-width:28px;text-align:center">' + (ai+1) + '</span>';
+        if (itemNodes.length === 1 && itemNodes[0].k === 'call') {
+          html += '<span class="lt-text"><em>' + esc(itemNodes[0].name) + '(…)</em></span></div>';
+          html += '<div class="lt-branch-arg" style="margin-left:28px">';
+          html += buildLogicHTML(itemNodes[0], depth+2);
+          html += '</div>';
+        } else {
+          html += '<span class="lt-text">' + argToText(itemNodes) + '</span></div>';
+        }
+      }
+      if (arrItems.length > 8) html += '<div class="lt-more">…还有 ' + (arrItems.length - 8) + ' 个选项</div>';
+      html += '</div>';
+    } else {
+      var optCount = args.length - 1;
+      var optShown = Math.min(optCount, 6);
+      html += '<div class="lt-branch-arg">';
+      html += '<div class="lt-label">📦 选项列表 — 共 <em>' + optCount + '</em> 个</div>';
+      for (var ci = 1; ci <= optShown; ci++) {
+        var optNodes = args[ci] || [];
+        html += '<div class="lt-row">';
+        html += '<span class="lt-chip lt-chip-cond" style="min-width:28px;text-align:center">' + ci + '</span>';
+        if (optNodes.length === 1 && optNodes[0].k === 'call') {
+          html += '<span class="lt-text"><em>' + esc(optNodes[0].name) + '(…)</em></span></div>';
+          html += '<div class="lt-branch-arg" style="margin-left:28px">';
+          html += buildLogicHTML(optNodes[0], depth+2);
+          html += '</div>';
+        } else {
+          html += '<span class="lt-text">' + argToText(optNodes) + '</span></div>';
+        }
+      }
+      if (optCount > 6) html += '<div class="lt-more">…还有 ' + (optCount - 6) + ' 个选项</div>';
+      html += '</div>';
+    }
+
+    // ── 兜底默认值 ──
+    if (defaultArg) {
+      html += '<div class="lt-branch-arg">';
+      html += '<div class="lt-label">🔙 兜底默认值 — 序号无效（为 0 或超出范围）时返回此值</div>';
+      if (defaultArg.length === 1 && defaultArg[0].k === 'call') {
+        html += buildLogicHTML(defaultArg[0], depth+1);
+      } else {
+        html += '<div class="lt-row"><span class="lt-chip lt-chip-val">默认</span><span class="lt-text">' + argToText(defaultArg) + '</span></div>';
+      }
+      html += '</div>';
+    }
+
+  } else if (node.k === 'call' && up==='MATCH') {
+    var args = node.args || [];
+    var matchValNodes = args[0] || [];
+    var matchArr = args[1] || [];
+    var matchTypeText = args[2] ? argToText(args[2]) : '0（精确匹配）';
+
+    // 检测 1=1 / TRUE 模式
+    var matchValText = argToText(matchValNodes);
+    var plainVal = matchValText.replace(/<[^>]+>/g, '').replace(/&gt;/g,'>').replace(/&lt;/g,'<').trim();
+    var isTruePattern = (plainVal === '1=1' || plainVal === 'TRUE' || plainVal === 'true' || plainVal === '1');
+
+    if (isTruePattern && matchArr.length === 1 && matchArr[0].k === 'arr') {
+      // 特殊模式：MATCH(1=1, {条件列表}) → 在条件列表中查找第一个为真的位置
+      html += '<div class="lt-row"><span class="lt-chip lt-chip-fn">MATCH 查找真值</span><span class="lt-text">在下列条件中查找<em>第一个为真</em>的条件位置</span></div>';
+
+      // 展开每个条件
+      var arrNode = matchArr[0];
+      var elems = arrNode.items || [];
+      var condShown = Math.min(elems.length, 8);
+
+      html += '<div class="lt-branch-arg">';
+      html += '<div class="lt-label">🔍 待判断条件 — 共 <em>' + elems.length + '</em> 个</div>';
+      for (var ci = 0; ci < condShown; ci++) {
+        var condNodes = elems[ci];
+        var firstNode = (condNodes && condNodes.length > 0) ? condNodes[0] : null;
+
+        html += '<div class="lt-row">';
+        html += '<span class="lt-chip lt-chip-cond" style="min-width:28px;text-align:center">' + (ci+1) + '</span>';
+
+        if (firstNode && firstNode.k === 'grp') {
+          // 括号分组：(month(...)=5) → 展开内部
+          var innerNodes = firstNode.inner || [];
+          var innerFn = null;
+          for (var in_i = 0; in_i < innerNodes.length; in_i++) {
+            if (innerNodes[in_i].k === 'call') { innerFn = innerNodes[in_i]; break; }
+          }
+          if (innerFn) {
+            html += '<span class="lt-text"><em>' + esc(innerFn.name) + '(…)</em></span></div>';
+            html += '<div class="lt-branch-arg" style="margin-left:28px">';
+            html += buildLogicHTML(innerFn, depth+2);
+            html += '</div>';
+            var restNodes = innerNodes.filter(function(n){ return n !== innerFn; });
+            if (restNodes.length > 0) {
+              html += '<div class="lt-row" style="margin-left:28px"><span class="lt-chip lt-chip-val">比较</span><span class="lt-text">' + argToText(restNodes) + '</span></div>';
+            }
+          } else {
+            html += '<span class="lt-text">' + argToText(innerNodes) + '</span></div>';
+          }
+        } else if (firstNode && firstNode.k === 'call') {
+          // 直接函数调用
+          html += '<span class="lt-text"><em>' + esc(firstNode.name) + '(…)</em></span></div>';
+          html += '<div class="lt-branch-arg" style="margin-left:28px">';
+          html += buildLogicHTML(firstNode, depth+2);
+          html += '</div>';
+          var restCallNodes = condNodes.slice(1);
+          if (restCallNodes.length > 0) {
+            html += '<div class="lt-row" style="margin-left:28px"><span class="lt-chip lt-chip-val">比较</span><span class="lt-text">' + argToText(restCallNodes) + '</span></div>';
+          }
+        } else {
+          // 简单条件
+          html += '<span class="lt-text">' + argToText(condNodes) + '</span></div>';
+        }
+      }
+      if (elems.length > 8) html += '<div class="lt-more">…还有 ' + (elems.length - 8) + ' 个条件</div>';
+      html += '</div>';
+
+      // 匹配模式
+      html += '<div class="lt-branch-arg">';
+      html += '<div class="lt-row"><span class="lt-chip lt-chip-val">匹配模式</span><span class="lt-text">' + matchTypeText + '</span></div>';
+      html += '</div>';
+
+      // 上下文说明
+      html += '<div class="lt-branch-arg">';
+      html += '<div class="lt-label">💡 MATCH 返回的是满足条件的位置<em>序号</em>，通常会传递给外层 <span class="lt-chip lt-chip-fn" style="margin:0 3px">CHOOSE</span> 来选择对应选项</div>';
+      html += '</div>';
+
+    } else {
+      // 标准 MATCH
+      var matchVal = matchValText;
+      html += '<div class="lt-row"><span class="lt-chip lt-chip-fn">MATCH</span><span class="lt-text">查找 <em>' + matchVal + '</em> 在数组中的位置</span></div>';
+
+      // 展示查找数组
+      html += '<div class="lt-branch-arg">';
+      html += '<div class="lt-label">🔢 查找数组</div>';
+      if (matchArr.length === 1 && matchArr[0].k === 'arr') {
+        var arrNode2 = matchArr[0];
+        var elems2 = arrNode2.items || [];
+        var elemStrs2 = elems2.map(function(item) {
+          return argToText(item);
+        });
+        html += '<div class="lt-row"><span class="lt-chip lt-chip-arr">数组</span><span class="lt-text">{' + elemStrs2.join('，') + '}</span></div>';
+        if (elemStrs2.length > 0 && elemStrs2.length <= 12) {
+          html += '<div class="lt-row" style="flex-wrap:wrap;gap:3px;padding:3px 0">';
+          elemStrs2.forEach(function(e, idx) {
+            html += '<span style="font-size:10px;background:#ede9fe;color:#5b21b6;padding:1px 5px;border-radius:3px;white-space:nowrap">'+(idx+1)+'→'+e+'</span>';
+          });
+          html += '</div>';
+        }
+      } else if (matchArr.length > 0) {
+        html += '<div class="lt-row"><span class="lt-chip lt-chip-arr">来源</span><span class="lt-text">' + argToText(matchArr) + '</span></div>';
+      }
+      html += '<div class="lt-label">🎯 匹配模式</div>';
+      html += '<div class="lt-row"><span class="lt-chip lt-chip-val">模式</span><span class="lt-text">' + matchTypeText + '</span></div>';
+      html += '</div>';
+    }
+
+  } else if (node.k === 'call') {
+    // 通用函数
+    var info = fnTypeChip(node.name);
+    var args = node.args || [];
+    html += '<div class="lt-row"><span class="lt-chip ' + info[0] + '">' + esc(node.name) + '</span><span class="lt-text">' + info[1] + '，共 <em>' + args.length + '</em> 个参数</span></div>';
+
+    // 参数名映射（常用函数）
+    var PARAM_NAMES = {
+      'EOMONTH': ['起始日期', '月份偏移'],
+      'EDATE':   ['起始日期', '月份偏移'],
+      'DATEDIF': ['开始日期', '结束日期', '计算单位'],
+      'DATE':    ['年', '月', '日'],
+      'VLOOKUP': ['查找值', '查找区域', '返回列号', '匹配模式'],
+      'IF':      ['条件', '真值', '假值'],
+      'IFERROR': ['表达式', '出错返回'],
+      'MONTH':   ['日期'],
+      'YEAR':    ['日期'],
+      'DAY':     ['日期'],
+      'NETWORKDAYS': ['开始日期', '结束日期', '节假日'],
+      'WORKDAY': ['开始日期', '天数', '节假日'],
+      'YEARFRAC':['开始日期', '结束日期', '计算基准'],
+      'ROUND':   ['数值', '小数位数'],
+      'ROUNDUP': ['数值', '小数位数'],
+      'ROUNDDOWN':['数值', '小数位数'],
+      'LEFT':    ['文本', '字符数'],
+      'RIGHT':   ['文本', '字符数'],
+      'MID':     ['文本', '开始位置', '字符数'],
+      'SEARCH':  ['查找目标', '被查找文本'],
+      'FIND':    ['查找目标', '被查找文本'],
+      'TEXT':    ['数值', '格式'],
+    };
+
+    var pNames = PARAM_NAMES[node.name.toUpperCase()] || [];
+    // 展开所有参数（参数少时全展，参数多时最多5个）
+    var maxShow = args.length <= 4 ? args.length : Math.min(args.length, 5);
+    for (var j = 0; j < maxShow; j++) {
+      var argNodes = args[j] || [];
+      var label = pNames[j] ? '<em>' + pNames[j] + '</em>' : '参数' + (j+1);
+      if (argNodes.length === 1 && argNodes[0].k === 'call') {
+        html += '<div class="lt-branch-arg">';
+        html += '<div class="lt-label">↳ ' + label + '</div>';
+        html += buildLogicHTML(argNodes[0], depth+1);
+        html += '</div>';
+      } else if (argNodes.length > 0) {
+        html += '<div class="lt-row" style="padding-left:4px"><span class="lt-chip lt-chip-val" style="font-size:9px">' + label + '</span><span class="lt-text">' + argToText(argNodes) + '</span></div>';
+      }
+    }
+    if (args.length > 5) html += '<div class="lt-more">…还有 ' + (args.length - 5) + ' 个参数</div>';
+
+  } else if (node.k === 'tok') {
+    html += '<div class="lt-row"><span class="lt-chip lt-chip-val">值</span><span class="lt-text">' + shortText(node) + '</span></div>';
+  } else if (node.k === 'arr') {
+    // 直接传入数组节点时
+    var items = node.items || [];
+    var elemStrs = items.map(function(item){ return argToText(item); });
+    html += '<div class="lt-row"><span class="lt-chip lt-chip-arr">数组</span><span class="lt-text">{' + elemStrs.join('，') + '}</span></div>';
+  }
+
+  return html;
+}
+
+function renderLogicPanel(ast, stats) {
+  var emptyEl = document.getElementById('logic-empty');
+  var treeEl  = document.getElementById('logic-tree');
+
+  if (!ast || ast.length === 0) {
+    emptyEl.style.display = ''; treeEl.style.display = 'none'; return;
+  }
+
+  var html = '';
+  // 只分析顶层节点（可能有多个逗号分隔的表达式）
+  var topCalls = ast.filter(function(n){ return n.k === 'call'; });
+  var others   = ast.filter(function(n){ return n.k !== 'call'; });
+
+  if (topCalls.length === 0 && others.length > 0) {
+    html = '<div class="lt-row"><span class="lt-chip lt-chip-val">值</span><span class="lt-text">' + argToText(ast) + '</span></div>';
+  } else {
+    for (var i = 0; i < topCalls.length; i++) {
+      if (topCalls.length > 1) html += '<div class="lt-label">▸ 第 '+(i+1)+' 段</div>';
+      html += buildLogicHTML(topCalls[i], 0);
+      if (i < topCalls.length - 1) html += '<hr style="border:none;border-top:1px dashed #e5e7eb;margin:8px 0">';
+    }
+  }
+
+  // 底部统计
+  if (stats) {
+    html += '<div class="lt-stats">'
+      + '<span class="lt-stat">最大嵌套 <strong>' + stats.maxDep + '</strong> 层</span>'
+      + '<span class="lt-stat">函数 <strong>' + stats.fns + '</strong> 个</span>'
+      + '<span class="lt-stat">字段 <strong>' + stats.fields + '</strong> 处</span>'
+      + '</div>';
+  }
+
+  treeEl.innerHTML = html;
+  emptyEl.style.display = 'none';
+  treeEl.style.display = '';
+}
+
+/* ======== AI 解读（通用，支持自定义接口） ======== */
+(function() {
+  var LS_KEY      = 'fml-ai-key';
+  var LS_URL      = 'fml-ai-url';
+  var LS_MDL      = 'fml-ai-model';
+  var LS_REMEMBER = 'fml-ai-remember'; // '1' = 记住, '0' = 不记住
+  var abortCtrl   = null;
+
+  // ── localStorage 读写 ──────────────────────────────────────────
+  function load(k) { try { return localStorage.getItem(k) || ''; } catch(e) { return ''; } }
+  function save(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
+  function del(k)  { try { localStorage.removeItem(k); } catch(e) {} }
+
+  // 记住开关：默认开（首次打开默认勾选记住）
+  function getRemember() { var v = load(LS_REMEMBER); return v !== '0'; }
+  function setRemember(v) { save(LS_REMEMBER, v ? '1' : '0'); }
+
+  function getCfg() {
+    return {
+      key:   load(LS_KEY),
+      url:   load(LS_URL),
+      model: load(LS_MDL)
+    };
+  }
+  // 会话内临时缓存（不记住时用）
+  var _sessionCfg = { key: '', url: '', model: '' };
+
+  function getEffectiveCfg() {
+    if (getRemember()) return getCfg();
+    return { key: _sessionCfg.key, url: _sessionCfg.url, model: _sessionCfg.model };
+  }
+
+  function persistCfg(key, url, model, remember) {
+    if (remember) {
+      save(LS_KEY, key); save(LS_URL, url); save(LS_MDL, model);
+    } else {
+      // 不记住：清掉 localStorage，只存会话变量
+      del(LS_KEY); del(LS_URL); del(LS_MDL);
+      _sessionCfg = { key: key, url: url, model: model };
+    }
+  }
+
+  function clearAll() {
+    del(LS_KEY); del(LS_URL); del(LS_MDL);
+    _sessionCfg = { key: '', url: '', model: '' };
+  }
+
+  // 把格式化后的公式（纯文本）从输出区拿出来
+  function getPlainFormula() {
+    var el = document.getElementById('output');
+    if (!el) return '';
+    return el.innerText || el.textContent || '';
+  }
+
+  // ── 弹窗元素 ──────────────────────────────────────────────────
+  var mask        = document.getElementById('ai-modal-mask');
+  var urlInput    = document.getElementById('ai-url-input');
+  var modelInput  = document.getElementById('ai-model-input');
+  var keyInput    = document.getElementById('ai-key-input');
+  var btnSave     = document.getElementById('ai-key-save');
+  var btnCancel   = document.getElementById('ai-key-cancel');
+  var btnCfg      = document.getElementById('btn-ai-key');
+  var btnClear    = document.getElementById('ai-key-clear');
+  var remTrack    = document.getElementById('ai-remember-track');
+  var remText     = document.getElementById('ai-remember-text');
+  var keyEye      = document.getElementById('ai-key-eye');
+
+  // ── 记住开关 ─────────────────────────────────────────────────
+  function setToggleUI(on) {
+    remTrack.classList.toggle('on', on);
+    remText.textContent = on
+      ? '记住配置（存入浏览器本地缓存）'
+      : '不记住（仅本次会话有效，关闭标签后失效）';
+  }
+  setToggleUI(getRemember());
+
+  document.getElementById('ai-remember-label').addEventListener('click', function() {
+    var next = !remTrack.classList.contains('on');
+    setToggleUI(next);
+  });
+
+  // ── 眼睛（显示/隐藏 Key）────────────────────────────────────
+  keyEye.addEventListener('click', function() {
+    if (keyInput.type === 'password') {
+      keyInput.type = 'text'; keyEye.style.opacity = '1';
+    } else {
+      keyInput.type = 'password'; keyEye.style.opacity = '.5';
+    }
+  });
+
+  // ── 预设服务商 ──────────────────────────────────────────────
+  document.getElementById('ai-presets').addEventListener('click', function(e) {
+    var btn = e.target.closest('.ai-preset-btn');
+    if (!btn) return;
+    urlInput.value   = btn.dataset.url   || '';
+    modelInput.value = btn.dataset.model || '';
+    document.querySelectorAll('.ai-preset-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    keyInput.focus();
+  });
+
+  // ── 打开 / 关闭弹窗 ─────────────────────────────────────────
+  function openModal() {
+    var cfg = getEffectiveCfg();
+    urlInput.value   = cfg.url   || load(LS_URL);
+    modelInput.value = cfg.model || load(LS_MDL);
+    keyInput.value   = cfg.key   || load(LS_KEY);
+    keyInput.type    = 'password';
+    keyEye.style.opacity = '.5';
+    setToggleUI(getRemember());
+    // 高亮匹配预设
+    document.querySelectorAll('.ai-preset-btn').forEach(function(b) {
+      b.classList.toggle('active',
+        b.dataset.url   === (urlInput.value)   &&
+        b.dataset.model === (modelInput.value)
+      );
+    });
+    // 清除按钮状态
+    var hasStored = load(LS_KEY) || load(LS_URL);
+    btnClear.style.display = hasStored ? '' : 'none';
+    mask.style.display = 'flex';
+    setTimeout(function(){ (keyInput.value ? keyInput : urlInput).focus(); }, 50);
+  }
+  function closeModal() { mask.style.display = 'none'; }
+
+  btnCfg.addEventListener('click', function(e) { e.stopPropagation(); openModal(); });
+  btnCancel.addEventListener('click', closeModal);
+  mask.addEventListener('click', function(e) { if (e.target === mask) closeModal(); });
+
+  // ── 保存 ────────────────────────────────────────────────────
+  btnSave.addEventListener('click', function() {
+    var url   = urlInput.value.trim();
+    var model = modelInput.value.trim();
+    var key   = keyInput.value.trim();
+    [urlInput, modelInput, keyInput].forEach(function(inp) { inp.style.borderColor = ''; });
+    if (!url || !model || !key) {
+      [urlInput, modelInput, keyInput].forEach(function(inp) {
+        if (!inp.value.trim()) inp.style.borderColor = '#ef4444';
+      });
+      return;
+    }
+    var remember = remTrack.classList.contains('on');
+    setRemember(remember);
+    persistCfg(key, url, model, remember);
+    updateAiBtn(!!getPlainFormula());
+    closeModal();
+  });
+
+  // ── 清除 ────────────────────────────────────────────────────
+  btnClear.addEventListener('click', function() {
+    clearAll();
+    urlInput.value = ''; modelInput.value = ''; keyInput.value = '';
+    document.querySelectorAll('.ai-preset-btn').forEach(function(b) { b.classList.remove('active'); });
+    btnClear.style.display = 'none';
+    updateAiBtn(false);
+  });
+
+  [urlInput, modelInput, keyInput].forEach(function(inp) {
+    inp.addEventListener('input', function() { inp.style.borderColor = ''; });
+    inp.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+  });
+  keyInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') btnSave.click(); });
+
+  // ── AI 解读按钮 ───────────────────────────────────────────────
+  var btnAi    = document.getElementById('btn-ai-explain');
+  var btnStop  = document.getElementById('ai-stop-btn');
+  var aiSec    = document.getElementById('ai-section');
+  var aiContent= document.getElementById('ai-content');
+
+  function updateAiBtn(hasFormula) {
+    var cfg = getEffectiveCfg();
+    btnAi.style.display = (cfg.key && cfg.url && cfg.model && hasFormula) ? '' : 'none';
+  }
+  window._aiUpdateBtn = updateAiBtn;
+
+  btnAi.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var cfg = getEffectiveCfg();
+    if (!cfg.key || !cfg.url || !cfg.model) { openModal(); return; }
+    var formula = getPlainFormula();
+    if (!formula || formula.length < 3) return;
+    callAI(cfg, formula);
+  });
+
+  btnStop.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (abortCtrl) { abortCtrl.abort(); abortCtrl = null; }
+    btnStop.style.display = 'none';
+    var cur = aiContent.querySelector('.ai-cursor');
+    if (cur) cur.remove();
+  });
+
+  // ── 流式调用（OpenAI 兼容 SSE 格式） ─────────────────────────
+  function callAI(cfg, formula) {
+    if (abortCtrl) abortCtrl.abort();
+    abortCtrl = new AbortController();
+
+    aiSec.style.display = '';
+    aiContent.innerHTML = '<span class="ai-cursor"></span>';
+    btnStop.style.display = '';
+    btnAi.disabled = true;
+
+    var panel = document.getElementById('logic-panel');
+    if (panel && panel.classList.contains('collapsed')) {
+      panel.classList.remove('collapsed');
+    }
+
+    var systemPrompt = '你是一位熟悉i人事（iHR360）薪资/考勤系统的HR数字化专家。' +
+      '用户会给你一段 i人事 自定义公式，请用简洁的中文解释它的实际业务含义，包括：\n' +
+      '1. 整体目的（一句话）\n' +
+      '2. 各分支/条件的业务语义（逐条列出）\n' +
+      '3. 计算结果代表什么\n' +
+      '请不要复述公式代码，专注于业务语义，使用 emoji 和换行增加可读性。';
+
+    var reqBody = JSON.stringify({
+      model: cfg.model,
+      stream: true,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user',   content: '请解读以下公式：\n\n' + formula }
+      ],
+      max_tokens: 1024,
+      temperature: 0.3
+    });
+
+    fetch(cfg.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + cfg.key
+      },
+      body: reqBody,
+      signal: abortCtrl.signal
+    })
+    .then(function(resp) {
+      if (!resp.ok) {
+        return resp.text().then(function(t) {
+          throw new Error('HTTP ' + resp.status + ': ' + t);
+        });
+      }
+      var reader  = resp.body.getReader();
+      var decoder = new TextDecoder();
+      var text = '';
+
+      function pump() {
+        return reader.read().then(function(result) {
+          if (result.done) {
+            var cur = aiContent.querySelector('.ai-cursor');
+            if (cur) cur.remove();
+            btnStop.style.display = 'none';
+            btnAi.disabled = false;
+            abortCtrl = null;
+            return;
+          }
+          var chunk = decoder.decode(result.value, { stream: true });
+          chunk.split('\n').forEach(function(line) {
+            line = line.trim();
+            if (!line || line === 'data: [DONE]') return;
+            if (line.startsWith('data: ')) {
+              try {
+                var json  = JSON.parse(line.slice(6));
+                var delta = json.choices && json.choices[0] && json.choices[0].delta;
+                if (delta && delta.content) {
+                  text += delta.content;
+                  aiContent.textContent = text;
+                  var cur = document.createElement('span');
+                  cur.className = 'ai-cursor';
+                  aiContent.appendChild(cur);
+                  var pb = document.getElementById('logic-panel-body');
+                  if (pb) pb.scrollTop = pb.scrollHeight;
+                }
+              } catch(ex) {}
+            }
+          });
+          return pump();
+        });
+      }
+      return pump();
+    })
+    .catch(function(err) {
+      if (err.name === 'AbortError') return;
+      var cur = aiContent.querySelector('.ai-cursor');
+      if (cur) cur.remove();
+      aiContent.innerHTML += '<br><span class="ai-error">❌ 调用失败：' + (err.message || err) + '</span>';
+      btnStop.style.display = 'none';
+      btnAi.disabled = false;
+      abortCtrl = null;
+    });
+  }
+
+  // 初始化：若已配置则更新按钮提示
+  var initCfg = getEffectiveCfg();
+  if (initCfg.key && initCfg.url) {
+    btnCfg.title = '已配置接口（点击修改）';
+  }
+})();
+
+/* ======== 拖拽分界线 ======== */
+(function() {
+  var handle = document.getElementById('resize-handle');
+  var sideCol = document.querySelector('.side-col');
+  var mainCol = document.querySelector('.main-col');
+  if (!handle || !sideCol || !mainCol) return;
+
+  var startX = 0, startW = 0;
+  var minSide = 260; // 右侧面板最小宽度
+  var minMain = 300; // 左侧面板最小宽度
+  var frameId = 0;
+  var dragging = false;
+
+  // 读取上次保存的宽度
+  try {
+    var saved = localStorage.getItem('fml-side-width');
+    if (saved && parseInt(saved) >= minSide) {
+      sideCol.style.width = saved + 'px';
+    }
+  } catch(e) {}
+
+  handle.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    dragging = true;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    startX = e.clientX;
+    startW = sideCol.offsetWidth;
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    if (frameId) cancelAnimationFrame(frameId);
+    frameId = requestAnimationFrame(function() {
+      var dx = startX - e.clientX; // 向右拖→侧栏变宽(dx<0, width变大)
+      var newW = startW + dx;
+      // 读取容器总宽，限制范围
+      var totalW = mainCol.parentElement.offsetWidth - handle.offsetWidth - 8;
+      if (newW < minSide) newW = minSide;
+      if (totalW - newW < minMain) newW = totalW - minMain;
+      sideCol.style.width = newW + 'px';
+    });
+  });
+
+  document.addEventListener('mouseup', function() {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    // 保存宽度
+    try {
+      localStorage.setItem('fml-side-width', sideCol.offsetWidth);
+    } catch(e) {}
+  });
+
+  // 双击重置
+  handle.addEventListener('dblclick', function() {
+    sideCol.style.width = '520px';
+    try { localStorage.removeItem('fml-side-width'); } catch(e) {}
+  });
+})();
+
+</script>
+</body>
+</html>
